@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tasks</title>
+    <style>
+      :root {
+        --bg: #f6f7f9;
+        --surface: #ffffff;
+        --text: #1c2430;
+        --muted: #667085;
+        --border: #d9dee6;
+        --accent: #2557d6;
+        --ok: #187a4a;
+        --bad: #b42318;
+        color-scheme: light dark;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        line-height: 1.5;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #14181f;
+          --surface: #1c222b;
+          --text: #e6e9ee;
+          --muted: #98a2b3;
+          --border: #2e3744;
+          --accent: #6f95f5;
+          --ok: #4cc38a;
+          --bad: #f97066;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 3rem 1.25rem;
+      }
+
+      h1 {
+        margin: 0 0 0.25rem;
+        font-size: 1.75rem;
+      }
+
+      .status {
+        margin: 0 0 1.5rem;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .status-connected {
+        color: var(--ok);
+      }
+
+      .status-offline,
+      .error {
+        color: var(--bad);
+      }
+
+      .add {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .add input {
+        flex: 1;
+        min-width: 0;
+        padding: 0.6rem 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--text);
+        font: inherit;
+      }
+
+      button {
+        padding: 0.6rem 1rem;
+        border: 0;
+        border-radius: 6px;
+        background: var(--accent);
+        color: #fff;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+
+      .empty {
+        color: var(--muted);
+      }
+
+      .tasks {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .tasks li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        padding: 0.7rem 0.9rem;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+      }
+
+      .tasks label {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        cursor: pointer;
+      }
+
+      .tasks li.done span {
+        color: var(--muted);
+        text-decoration: line-through;
+      }
+
+      .delete {
+        padding: 0.3rem 0.6rem;
+        background: transparent;
+        color: var(--bad);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Tasks</h1>
+      <p id="status" class="status">Checking connection…</p>
+
+      <form id="add-form" class="add">
+        <input
+          id="task-title"
+          name="title"
+          placeholder="What needs doing?"
+          aria-label="New task"
+          required
+        />
+        <button type="submit">Add task</button>
+      </form>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <p id="empty" class="empty">Loading tasks…</p>
+      <ul id="tasks" class="tasks"></ul>
+    </main>
+    <script type="module" src="/health.js"></script>
+  </body>
+</html>

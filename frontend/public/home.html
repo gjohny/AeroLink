@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="AeroLink — your journey starts here.">
+	<title>AeroLink | Coming Soon</title>
+	<style>
+		* { box-sizing: border-box; }
+		html, body { width: 100%; height: 100%; }
+		body {
+			margin: 0;
+			display: grid;
+			place-items: center;
+			overflow: hidden;
+			color: #f4f7ff;
+			background: radial-gradient(ellipse at 50% 0%, #173d70 0, #0a1830 48%, #07101f 100%);
+			font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		}
+		main {
+			display: grid;
+			align-content: center;
+			justify-items: center;
+			width: 100%;
+			height: 100%;
+			padding: 24px;
+			text-align: center;
+		}
+		.mark {
+			width: 60px;
+			height: 60px;
+			margin: 0 auto 18px;
+			display: grid;
+			place-items: center;
+			border: 1px solid #ffffff30;
+			border-radius: 22px;
+			background: #ffffff12;
+			color: #8edcff;
+			font-size: 34px;
+		}
+		.eyebrow {
+			color: #8edcff;
+			font-size: 12px;
+			font-weight: 700;
+			letter-spacing: .2em;
+			text-transform: uppercase;
+		}
+		h1 { margin: 12px 0; font-size: clamp(34px, 7vw, 60px); line-height: 1.05; }
+		p { max-width: 480px; margin: 0 auto; color: #b7c5dc; font-size: 16px; line-height: 1.55; }
+		.status {
+			display: inline-flex;
+			align-items: center;
+			gap: 9px;
+			margin-top: 20px;
+			padding: 10px 15px;
+			border: 1px solid #ffffff20;
+			border-radius: 999px;
+			background: #ffffff0b;
+			color: #dce8fa;
+			font-size: 14px;
+		}
+		.dot { width: 8px; height: 8px; border-radius: 50%; background: #58e0b2; }
+		footer { margin-top: 28px; color: #8292aa; font-size: 13px; }
+		@media (max-height: 480px) {
+			.mark { width: 44px; height: 44px; margin-bottom: 10px; font-size: 24px; }
+			h1 { margin: 8px 0; font-size: clamp(30px, 7vh, 40px); }
+			.status { margin-top: 12px; padding: 7px 12px; }
+			footer { margin-top: 12px; }
+		}
+	</style>
+</head>
+<body>
+	<main>
+		<div class="mark" aria-hidden="true">✦</div>
+		<div class="eyebrow">AeroLink</div>
+		<h1>Something is<br>on the horizon.</h1>
+		<p>We’re getting things ready for takeoff. Check back soon to see what’s next.</p>
+		<div class="status"><span class="dot" aria-hidden="true"></span>Preparing for launch</div>
+		<footer>&copy; <span id="year"></span> AeroLink. All rights reserved.</footer>
+	</main>
+	<script>
+		document.getElementById("year").textContent = new Date().getFullYear();
+	</script>
+</body>
+</html>

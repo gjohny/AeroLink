@@ -1,0 +1,138 @@
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --text: #1c2430;
+  --muted: #667085;
+  --border: #d9dee6;
+  --accent: #2557d6;
+  --ok: #187a4a;
+  --bad: #b42318;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181f;
+    --surface: #1c222b;
+    --text: #e6e9ee;
+    --muted: #98a2b3;
+    --border: #2e3744;
+    --accent: #6f95f5;
+    --ok: #4cc38a;
+    --bad: #f97066;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 590px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem;
+}
+
+.app-home {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+}
+
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.navigation a {
+  color: var(--accent);
+}
+
+.navigation a[aria-current="page"] {
+  font-weight: 700;
+}
+
+.page-frame {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+  border: 0;
+  background: var(--bg);
+}
+
+.app-home .navigation {
+  position: absolute;
+  z-index: 1;
+  top: 1rem;
+  left: 1rem;
+  margin: 0;
+}
+
+.app-home .page-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }
+
+.status { margin: 0 0 1.5rem; font-size: 0.9rem; color: var(--muted); }
+.status-connected { color: var(--ok); }
+.status-offline { color: var(--bad); }
+
+.add { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+
+input[type="text"], .add input {
+  flex: 1;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+button {
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.error { color: var(--bad); }
+.empty { color: var(--muted); }
+
+.tasks { list-style: none; margin: 0; padding: 0; }
+
+.tasks li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.tasks label { display: flex; gap: 0.6rem; align-items: center; cursor: pointer; }
+.tasks li.done span { text-decoration: line-through; color: var(--muted); }
+
+.delete { background: transparent; color: var(--bad); padding: 0.3rem 0.6rem; }

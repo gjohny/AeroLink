@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+instance/
+
+#commenting db files for now, but may need to uncomment later
+#*.db
+
+# Node
+node_modules/
+dist/
+
+# Env
+.env
+.DS_Store
