@@ -34,9 +34,56 @@ body {
 }
 
 .app {
-  max-width: 560px;
+  max-width: 590px;
   margin: 0 auto;
   padding: 3rem 1.25rem;
+}
+
+.app-home {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+}
+
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.navigation a {
+  color: var(--accent);
+}
+
+.navigation a[aria-current="page"] {
+  font-weight: 700;
+}
+
+.page-frame {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+  border: 0;
+  background: var(--bg);
+}
+
+.app-home .navigation {
+  position: absolute;
+  z-index: 1;
+  top: 1rem;
+  left: 1rem;
+  margin: 0;
+}
+
+.app-home .page-frame {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
 }
 
 h1 { margin: 0 0 0.25rem; font-size: 1.75rem; }

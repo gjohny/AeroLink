@@ -4,7 +4,9 @@ __pycache__/
 venv/
 .venv/
 instance/
-*.db
+
+#commenting db files for now, but may need to uncomment later
+#*.db
 
 # Node
 node_modules/

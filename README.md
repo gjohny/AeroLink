@@ -46,7 +46,20 @@ Browser (React, :5173)  --/api/*-->  Vite proxy  -->  Flask (:5000)  -->  SQLAlc
 - Python 3.10+
 - Node.js 18+ and npm
 
-## Quick start
+## Quick Start
+
+```bash
+#make sure you are in the project root
+cd AeroLink
+
+#run startup script
+node start.js
+```
+---
+# OR
+---
+
+## Manual start (for starting frontend and backend separate)
 
 You need **two terminals**: one for the backend, one for the frontend.
 

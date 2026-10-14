@@ -1,100 +1,59 @@
 import { useEffect, useState } from "react";
-import { createTask, deleteTask, getHealth, getTasks, updateTask } from "./api";
 
 export default function App() {
-  const [status, setStatus] = useState("checking");
-  const [tasks, setTasks] = useState([]);
-  const [title, setTitle] = useState("");
-  const [error, setError] = useState("");
+  const [path, setPath] = useState(window.location.pathname);
 
   useEffect(() => {
-    getHealth()
-      .then(() => setStatus("connected"))
-      .catch(() => setStatus("offline"));
-    getTasks()
-      .then(setTasks)
-      .catch((e) => setError(e.message));
+    function handlePopState() {
+      setPath(window.location.pathname);
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  async function handleAdd(e) {
-    e.preventDefault();
-    if (!title.trim()) return;
-    try {
-      const task = await createTask(title);
-      setTasks([task, ...tasks]);
-      setTitle("");
-      setError("");
-    } catch (err) {
-      setError(err.message);
-    }
+  function navigate(event, destination) {
+    event.preventDefault();
+    if (destination === path) return;
+    window.history.pushState({}, "", destination);
+    setPath(destination);
   }
 
-  async function handleToggle(task) {
-    try {
-      const updated = await updateTask(task.id, { done: !task.done });
-      setTasks(tasks.map((t) => (t.id === task.id ? updated : t)));
-    } catch (err) {
-      setError(err.message);
-    }
+  let page;
+  if (path === "/") {
+    page = <iframe className="page-frame" src="/home.html" title="Home page" />;
+  } else if (path === "/health") {
+    page = <iframe className="page-frame" src="/health.html" title="Connection status" />;
+  } else if (path === "/Page1") {
+    page = <iframe className="page-frame" src="/Page1.html" title="Page 1" />;
+  } else if (path === "/Page2") {
+    page = <iframe className="page-frame" src="/Page2.html" title="Page 2" />;
+  } else if (path === "/Page3") {
+    page = <iframe className="page-frame" src="/Page3.html" title="Page 3" />;
+  } else {
+    page = <h1>Page not found</h1>;
   }
-
-  async function handleDelete(id) {
-    try {
-      await deleteTask(id);
-      setTasks(tasks.filter((t) => t.id !== id));
-    } catch (err) {
-      setError(err.message);
-    }
-  }
-
-  const statusText = {
-    checking: "Checking connection…",
-    connected: "Frontend, backend and database are connected",
-    offline: "Backend unreachable. Is Flask running on port 5000?",
-  }[status];
 
   return (
-    <main className="app">
-      <h1>Tasks</h1>
-      <p className={`status status-${status}`}>{statusText}</p>
-
-      <form className="add" onSubmit={handleAdd}>
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="What needs doing?"
-          aria-label="New task"
-        />
-        <button type="submit">Add task</button>
-      </form>
-
-      {error && <p className="error">{error}</p>}
-
-      {tasks.length === 0 ? (
-        <p className="empty">No tasks yet. Add your first one above.</p>
-      ) : (
-        <ul className="tasks">
-          {tasks.map((task) => (
-            <li key={task.id} className={task.done ? "done" : ""}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={task.done}
-                  onChange={() => handleToggle(task)}
-                />
-                <span>{task.title}</span>
-              </label>
-              <button
-                className="delete"
-                onClick={() => handleDelete(task.id)}
-                aria-label={`Delete ${task.title}`}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+    <main className={`app${path === "/" ? " app-home" : ""}`}>
+      <nav className="navigation" aria-label="Main navigation">
+        {[
+          ["/", "Home"],
+          ["/Page1", "Page 1"],
+          ["/Page2", "Page 2"],
+          ["/Page3", "Page 3"],
+        ].map(([destination, label]) => (
+          <a
+            key={destination}
+            href={destination}
+            aria-current={path === destination ? "page" : undefined}
+            onClick={(event) => navigate(event, destination)}
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+      {page}
     </main>
   );
 }
