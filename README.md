@@ -1,6 +1,6 @@
 # Full Stack App: React + Flask + SQL
 
-A starter project with a **React** frontend (Vite), a **Flask** REST API, and a **SQL** database (SQLite by default, PostgreSQL optional) managed through SQLAlchemy.
+A starter project with a **React** frontend (Vite), a **Flask** REST API, and a **SQL** database (SQLite) managed through SQLAlchemy.
 
 The sample app is a simple task list. It shows the full round trip: React UI → Flask API → database, and back.
 
@@ -10,7 +10,6 @@ The sample app is a simple task list. It shows the full round trip: React UI →
 fullstack-app/
 ├── README.md
 ├── .gitignore
-├── docker-compose.yml        # Optional PostgreSQL container
 ├── backend/
 │   ├── requirements.txt
 │   ├── .env.example          # Copy to .env
@@ -46,7 +45,6 @@ Browser (React, :5173)  --/api/*-->  Vite proxy  -->  Flask (:5000)  -->  SQLAlc
 
 - Python 3.10+
 - Node.js 18+ and npm
-- (Optional) Docker, only if you want PostgreSQL
 
 ## Quick start
 
@@ -88,22 +86,6 @@ npm run dev
 
 Open http://localhost:5173. You should see the **Tasks** page with a green message: *Frontend, backend and database are connected*. Add a task, refresh the page, and it will still be there because it is stored in the database.
 
-## Using PostgreSQL instead of SQLite (optional)
-
-1. Start the database from the project root:
-   ```bash
-   docker compose up -d
-   ```
-2. In `backend/.env`, comment out the SQLite line and enable the PostgreSQL one:
-   ```
-   DATABASE_URL=postgresql://appuser:apppassword@localhost:5432/appdb
-   ```
-3. Restart the backend (`python run.py`). Tables are created automatically.
-
-Stop the database with `docker compose down` (add `-v` to also delete its data).
-
-To use MySQL, change `DATABASE_URL` to `mysql+pymysql://user:password@localhost:3306/dbname` and `pip install pymysql`.
-
 ## API reference
 
 | Method | Endpoint           | Description                         | Body                        |
@@ -136,8 +118,6 @@ curl http://127.0.0.1:5000/api/tasks
 |---|---|
 | Page says "Backend unreachable" | Make sure `python run.py` is running and nothing else is using port 5000. On macOS, AirPlay Receiver can occupy port 5000: turn it off in System Settings, or change the port in `run.py` **and** the proxy target in `frontend/vite.config.js`. |
 | `ModuleNotFoundError` in backend | Activate the virtual environment, then run `pip install -r requirements.txt` again. |
-| `psycopg2` install fails | You only need it for PostgreSQL. Remove that line from `requirements.txt` if you're using SQLite, or install your OS's PostgreSQL client libraries. |
-| PostgreSQL connection refused | Check the container is running with `docker ps`, and that `DATABASE_URL` matches `docker-compose.yml`. |
 | CORS errors in the browser console | Use the Vite dev server at http://localhost:5173 (it proxies requests), and make sure `CORS_ORIGINS` in `backend/.env` matches that URL. |
 
 ## Production notes
