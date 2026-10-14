@@ -1,0 +1,18 @@
+# Optional: run PostgreSQL locally instead of the default SQLite file.
+# Start with: docker compose up -d
+services:
+  db:
+    image: postgres:16
+    container_name: fullstack_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
