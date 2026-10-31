@@ -1,5 +1,4 @@
 from flask import Flask
-
 from config import Config
 
 from .extensions import cors, db
@@ -15,6 +14,14 @@ def create_app(config_class=Config):
     from .routes import api
 
     app.register_blueprint(api)
+
+    from .auth import auth
+
+    app.register_blueprint(auth)
+
+    from .preferences import preferences_api
+
+    app.register_blueprint(preferences_api)
 
     with app.app_context():
         from . import models  # noqa: F401  (registers models)
