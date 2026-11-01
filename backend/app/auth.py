@@ -22,8 +22,8 @@ def register():
     if len(name) > 100 or len(email) > 255:
         return jsonify(error="Name or email is too long."), 400
 
-    if len(password) < 12:
-        return jsonify(error="Password must be at least 12 characters."), 400
+    if len(password) < 10:
+        return jsonify(error="Password must be at least 10 characters."), 400
 
     if "@" not in email or email.startswith("@") or email.endswith("@"):
         return jsonify(error="Enter a valid email address."), 400
@@ -92,3 +92,55 @@ def current_user():
 def logout():
     session.clear()
     return jsonify(message="Logged out successfully."), 200
+
+@auth.post("/change-password")
+def change_password():
+    user_id = session.get("user_id")
+    user = db.session.get(User, user_id) if user_id is not None else None
+    if user is None:
+        session.clear()
+        return jsonify(error="Not authenticated."), 401
+
+    data = request.get_json(silent=True) or {}
+    current = data.get("current_password")
+    new = data.get("new_password")
+    if not isinstance(current, str) or not isinstance(new, str):
+        return jsonify(error="Current and new passwords are required."), 400
+    if not user.check_password(current):
+        return jsonify(error="Current password is incorrect."), 400
+    if len(new) < 10:
+        return jsonify(error="New password must be at least 10 characters."), 400
+    if len(new) > 256:
+        return jsonify(error="New password is too long."), 400
+    if current == new:
+        return jsonify(error="Choose a password different from your current one."), 400
+
+    user.set_password(new)
+    db.session.commit()
+    return jsonify(message="Password updated successfully."), 200
+
+
+@auth.post("/delete-account")
+def delete_account():
+    user_id = session.get("user_id")
+    user = db.session.get(User, user_id) if user_id is not None else None
+    if user is None:
+        session.clear()
+        return jsonify(error="Not authenticated."), 401
+
+    data = request.get_json(silent=True) or {}
+    password = data.get("password")
+    confirmation = data.get("confirmation")
+    if not isinstance(password, str) or not user.check_password(password):
+        return jsonify(error="Password is incorrect."), 400
+    if confirmation != "DELETE":
+        return jsonify(error="Type DELETE to confirm account deletion."), 400
+
+    # Delete related preferences before the user to satisfy the existing FK.
+    # When trip models are introduced, add explicit cleanup/cascades here too.
+    from .models import TravelPreference
+    db.session.query(TravelPreference).filter_by(user_id=user.id).delete()
+    db.session.delete(user)
+    db.session.commit()
+    session.clear()
+    return jsonify(message="Account deleted successfully."), 200

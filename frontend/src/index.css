@@ -236,24 +236,30 @@ body {
 
 /* Allow future dashboard and preferences layouts
    to use the available screen width */
+
 .app:not(.app-home) {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 24px 32px 48px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
 }
 
-/* Modern navigation for non-home pages */
+
 .app:not(.app-home) .navigation {
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 16px 24px;
-  margin-bottom: 24px;
-  border: 1px solid var(--aero-border);
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.04);
+  width: 100%;
+  min-height: 76px;
+  margin: 0;
+  padding: 16px 32px;
+
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
+
 
 .app:not(.app-home) .navigation a {
   color: #475569;
@@ -601,10 +607,12 @@ body {
    AeroLink Travel Preferences — C + B
    ====================================== */
 
+
 .preferences-page {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px 0 60px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 24px 32px 60px;
   color: #172554;
 }
 
@@ -876,5 +884,70 @@ body {
 
   .preferences-save {
     width: 100%;
+  }
+}
+
+
+/* Shared page layout */
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  max-width: none;
+}
+
+.app {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Seamless navbar */
+.app .navigation {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px 32px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Full-width login and registration backgrounds */
+.app .auth-page {
+  width: 100%;
+  max-width: none;
+  min-height: calc(100vh - 76px);
+  margin: 0;
+}
+
+/* Keep forms comfortably sized */
+.app .auth-card {
+  max-width: 460px;
+}
+
+/* Expanded preferences layout */
+.app .preferences-page {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 24px 32px 60px;
+}
+
+@media (max-width: 768px) {
+  .app .navigation {
+    padding: 16px;
+  }
+
+  .app .preferences-page {
+    padding: 20px 16px 40px;
   }
 }

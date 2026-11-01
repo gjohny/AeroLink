@@ -19,8 +19,8 @@ export default function Register({ onSuccess, onNavigate }) {
       return;
     }
 
-    if (password.length < 12) {
-      setError("Password must be at least 12 characters.");
+    if (password.length < 10) {
+      setError("Password must be at least 10 characters.");
       return;
     }
 
@@ -53,13 +53,13 @@ export default function Register({ onSuccess, onNavigate }) {
         </p>
 
         <form onSubmit={handleSubmit}>
-          <label htmlFor="register-name">Full Name</label>
+          <label htmlFor="register-name">Name</label>
           <div className="auth-input-wrap">
             <span className="auth-input-icon" aria-hidden="true">♙</span>
             <input
               id="register-name"
               type="text"
-              placeholder="Enter your full name"
+              placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               autoComplete="name"
@@ -89,11 +89,11 @@ export default function Register({ onSuccess, onNavigate }) {
             <input
               id="register-password"
               type="password"
-              placeholder="At least 12 characters"
+              placeholder="At least 0 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
-              minLength={12}
+              minLength={10}
               required
             />
           </div>

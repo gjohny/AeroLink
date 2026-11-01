@@ -1,0 +1,268 @@
+.account-settings-page { max-width: 1100px; margin: 32px auto 80px; padding: 0 24px; color: #172554; }
+.account-settings-header { padding: 34px 40px; margin-bottom: 28px; border: 1px solid #d7e5ff; border-radius: 24px; background: linear-gradient(110deg, #fff, #e8f1ff); }
+.account-settings-eyebrow { color: #2563eb; font-weight: 800; font-size: 12px; letter-spacing: .13em; }
+.account-settings-header h1 { margin: 12px 0; font-size: clamp(30px, 4vw, 42px); color: #182957; }
+.account-settings-header p { margin: 0; color: #64748b; }
+.account-settings-card { background: white; border: 1px solid #d7e3f5; border-radius: 22px; padding: 32px 38px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(31,65,122,.035); }
+.account-settings-heading { display: flex; align-items: center; gap: 16px; margin-bottom: 24px; }
+.account-settings-heading h2 { margin: 0 0 5px; font-size: 23px; color: #182957; }
+.account-settings-heading p { margin: 0; color: #64748b; line-height: 1.5; }
+.account-settings-icon { flex-shrink: 0; display: grid; place-items: center; width: 54px; height: 54px; border-radius: 15px; background: #eef5ff; font-size: 24px; }
+.account-settings-form { max-width: 650px; display: flex; flex-direction: column; gap: 10px; }
+.account-settings-form label { margin-top: 9px; font-weight: 700; color: #334155; }
+.account-settings-page .account-settings-form input { box-sizing: border-box; display: block; width: 100%; min-height: 50px; border: 1.5px solid #d7e3f5; border-radius: 12px; background: #fff; color: #172554; padding: 12px 16px; font-size: 15px; color-scheme: light; }
+.account-settings-page .account-settings-form input:focus { outline: none; border-color: #3978ff; box-shadow: 0 0 0 3px rgba(57,120,255,.12); }
+.account-settings-page .account-settings-form input::placeholder { color: #94a3b8; }
+.account-settings-page .account-settings-primary, .account-settings-page .account-settings-danger-button, .account-settings-page .account-settings-cancel { border-radius: 12px; padding: 13px 22px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.account-settings-page .account-settings-primary { align-self: flex-start; margin-top: 16px; border: 0; background: linear-gradient(100deg,#397cff,#2440b5); color: white; }
+.account-settings-page button:disabled { cursor: not-allowed; opacity: .6; }
+.account-settings-page .account-settings-danger-button { border: 1px solid #ef4444; background: #fff5f5; color: #b91c1c; }
+.account-settings-page .account-settings-danger-button:hover:not(:disabled) { background: #fee2e2; }
+.account-settings-page .account-settings-cancel { background: #fff; border: 1px solid #cbd5e1; color: #334155; }
+.account-settings-danger-icon { background: #fff1f2; color: #be123c; }
+.account-settings-delete-form { margin-top: 18px; }
+.account-settings-warning { background: #fff7ed; border: 1px solid #fed7aa; padding: 15px; border-radius: 12px; color: #9a3412; line-height: 1.5; }
+.account-settings-delete-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 15px; }
+.account-settings-error { color: #b91c1c; font-weight: 600; }
+.account-settings-success { color: #15803d; font-weight: 600; }
+@media(max-width:700px) { .account-settings-page { padding: 0 14px; margin-top: 18px; } .account-settings-header,.account-settings-card { padding: 24px 20px; } .account-settings-heading { align-items: flex-start; } }
+
+/* Match Account Settings header width to Preferences */
+.account-settings-page {
+  max-width: none;
+  width: 100%;
+}
+
+.account-settings-header {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+/* Side-by-side account settings cards */
+.account-settings-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: stretch;
+  width: 100%;
+}
+
+.account-settings-grid > * {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Stack cards on smaller screens */
+@media (max-width: 900px) {
+  .account-settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Match Account Settings cards to Preferences cards */
+
+/* Align icon and heading exactly like preference cards */
+.account-settings-grid .account-settings-heading {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  margin-bottom: 30px;
+}
+
+/* Match preference icon containers */
+.account-settings-grid .account-settings-icon {
+  width: 56px;
+  height: 56px;
+  min-width: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 16px;
+
+  font-size: 27px;
+  line-height: 1;
+}
+
+/* Keep delete icon red */
+.account-settings-grid .account-settings-danger-icon {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+/* Heading and description alignment */
+.account-settings-grid .account-settings-heading > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.account-settings-grid .account-settings-heading h2 {
+  margin: 0;
+  color: #192b5b;
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.account-settings-grid .account-settings-heading p {
+  margin: 0;
+  color: #64748b;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* Keep both cards aligned at the top */
+.account-settings-grid {
+  align-items: stretch;
+}
+
+.account-settings-grid .account-settings-card {
+  padding: 32px 36px;
+}
+
+/* ==========================================
+   COMPACT ACCOUNT SETTINGS LAYOUT
+   ========================================== */
+
+/* Match the Preferences page's title banner */
+.account-settings-header {
+  padding: 28px 40px !important;
+  margin-bottom: 24px !important;
+  min-height: 0 !important;
+}
+
+.account-settings-eyebrow {
+  margin-bottom: 14px !important;
+}
+
+.account-settings-header h1 {
+  margin: 0 0 12px !important;
+  line-height: 1.1;
+}
+
+.account-settings-header p {
+  margin: 0 !important;
+  line-height: 1.4;
+}
+
+/* Reduce spacing between the two cards */
+.account-settings-grid {
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* Make the cards shorter */
+.account-settings-grid > .account-settings-card {
+  padding: 26px 32px !important;
+}
+
+/* Compact card headings */
+.account-settings-grid .account-settings-heading {
+  gap: 14px;
+  margin-bottom: 22px !important;
+  align-items: center;
+}
+
+.account-settings-grid .account-settings-icon {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  border-radius: 15px;
+}
+
+.account-settings-grid .account-settings-heading h2 {
+  font-size: 23px;
+  line-height: 1.2;
+}
+
+.account-settings-grid .account-settings-heading p {
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+/* Compact password form */
+.account-settings-grid .account-settings-form {
+  gap: 10px !important;
+}
+
+.account-settings-grid .account-settings-form label {
+  margin: 0 !important;
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+.account-settings-grid .account-settings-form input {
+  height: 46px !important;
+  min-height: 0 !important;
+  padding: 10px 14px !important;
+  margin: 0 0 4px !important;
+  box-sizing: border-box;
+}
+
+/* Compact buttons */
+.account-settings-grid .account-settings-primary,
+.account-settings-grid .account-settings-danger-button {
+  padding: 12px 18px !important;
+  min-height: 44px;
+}
+
+/* Keep the page's outer spacing compact */
+.account-settings-page {
+  padding-top: 12px !important;
+  padding-bottom: 24px !important;
+}
+
+/* Mobile: preserve comfortable spacing */
+@media (max-width: 900px) {
+  .account-settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .account-settings-header {
+    padding: 24px !important;
+  }
+
+  .account-settings-grid > .account-settings-card {
+    padding: 24px !important;
+  }
+}
+
+/* Align both account card headings consistently */
+.account-settings-grid .account-settings-heading {
+  display: flex;
+  align-items: flex-start !important;
+  gap: 18px;
+}
+
+/* Keep icons aligned */
+.account-settings-grid .account-settings-icon {
+  flex-shrink: 0;
+}
+
+/* Align heading text at the same vertical position */
+.account-settings-grid .account-settings-heading > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start !important;
+  gap: 6px;
+  padding-top: 0 !important;
+}
+
+/* Remove default heading spacing */
+.account-settings-grid .account-settings-heading h2 {
+  margin: 0 !important;
+  line-height: 1.2;
+}
+
+.account-settings-grid .account-settings-heading p {
+  margin: 0 !important;
+  line-height: 1.4;
+}
