@@ -27,7 +27,7 @@
 .account-settings-success { color: #15803d; font-weight: 600; }
 @media(max-width:700px) { .account-settings-page { padding: 0 14px; margin-top: 18px; } .account-settings-header,.account-settings-card { padding: 24px 20px; } .account-settings-heading { align-items: flex-start; } }
 
-/* Match Account Settings header width to Preferences */
+
 .account-settings-page {
   max-width: none;
   width: 100%;
@@ -39,7 +39,7 @@
   box-sizing: border-box;
 }
 
-/* Side-by-side account settings cards */
+
 .account-settings-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
@@ -61,9 +61,7 @@
   }
 }
 
-/* Match Account Settings cards to Preferences cards */
 
-/* Align icon and heading exactly like preference cards */
 .account-settings-grid .account-settings-heading {
   display: flex;
   align-items: center;
@@ -72,7 +70,7 @@
   margin-bottom: 30px;
 }
 
-/* Match preference icon containers */
+
 .account-settings-grid .account-settings-icon {
   width: 56px;
   height: 56px;
@@ -89,7 +87,7 @@
   line-height: 1;
 }
 
-/* Keep delete icon red */
+
 .account-settings-grid .account-settings-danger-icon {
   background: #fff1f2;
   color: #e11d48;
@@ -119,7 +117,7 @@
   line-height: 1.5;
 }
 
-/* Keep both cards aligned at the top */
+
 .account-settings-grid {
   align-items: stretch;
 }
@@ -132,7 +130,7 @@
    COMPACT ACCOUNT SETTINGS LAYOUT
    ========================================== */
 
-/* Match the Preferences page's title banner */
+
 .account-settings-header {
   padding: 28px 40px !important;
   margin-bottom: 24px !important;
@@ -214,7 +212,7 @@
   min-height: 44px;
 }
 
-/* Keep the page's outer spacing compact */
+
 .account-settings-page {
   padding-top: 12px !important;
   padding-bottom: 24px !important;

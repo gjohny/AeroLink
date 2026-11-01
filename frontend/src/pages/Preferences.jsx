@@ -1,33 +1,7 @@
 import { useEffect, useState } from "react";
 import "../preference.css";
 
-const INTERESTS = [
-  "Beaches", "Museums", "Hiking", "Shopping", "Nightlife", "Nature",
-  "History", "Adventure", "Art", "Relaxation", "Family Activities", "Food Tours",
-  "Photography", "Wildlife", "Camping", "Water Sports", "Skiing", "Theme Parks",
-  "Live Music", "Festivals", "Architecture", "Sports", "Wellness", "Local Culture",
-  "Cycling", "Boat Tours"
-];
-const CUISINES = [
-  "Italian", "Mexican", "Indian", "Chinese", "Japanese", "Thai",
-  "Mediterranean", "American", "French", "Korean", "Vietnamese", "Greek",
-  "Turkish", "Spanish", "Middle Eastern", "Caribbean", "Brazilian",
-  "Ethiopian", "Seafood", "BBQ", "Fusion"
-];
-const DIETARY = [
-  "Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-Free", "Dairy-Free",
-  "Nut-Free", "Pescatarian"
-];
-const ACCOMMODATIONS = [
-  "Hotel", "Resort", "Apartment", "Hostel", "Vacation Rental", "Bed & Breakfast",
-  "Luxury Hotel", "Guesthouse", "Cabin", "Cottage",
-  "Homestay"
-];
-const AMENITIES = [
-  "Wi-Fi", "Parking", "Pool", "Gym", "Breakfast Included", "Pet-Friendly",
-  "Kitchen", "Air Conditioning", "Airport Shuttle", "Spa", "Ocean View",
-  "Mountain View", "Laundry", "Accessible Rooms", "Child-Friendly"
-];
+import { INTERESTS, CUISINES, DIETARY, ACCOMMODATIONS, AMENITIES } from "../data/preferenceOptions";
 
 const initialPreferences = {
   interests: [],

@@ -1,4 +1,4 @@
-/* Option C: tabbed preferences. Scoped to avoid affecting other pages. */
+
 .preferences-tabs-page {
   width: 100%;
   max-width: 1250px;
@@ -139,7 +139,6 @@
   .preferences-tabs-page .preferences-tabs-save { width: auto; }
 }
 
-/* Custom preference entry, used in every preference category */
 .preferences-custom-entry {
   display: flex;
   gap: 10px;
@@ -169,7 +168,7 @@
 .preferences-custom-entry button:disabled { opacity: 0.45; cursor: not-allowed; }
 @media (max-width: 540px) { .preferences-custom-entry { flex-direction: column; } }
 
-/* Explain unverified dietary requirements without implying a verified restaurant match */
+
 .preferences-dietary-note {
   color: #64748b;
   font-size: 13px;
@@ -177,7 +176,7 @@
   margin: 4px 0 14px;
 }
 
-/* Custom preference input */
+
 .preferences-page input[type="text"] {
   background: #ffffff;
   color: #172554;

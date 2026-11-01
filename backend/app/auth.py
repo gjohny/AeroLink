@@ -93,6 +93,7 @@ def logout():
     session.clear()
     return jsonify(message="Logged out successfully."), 200
 
+
 @auth.post("/change-password")
 def change_password():
     user_id = session.get("user_id")
@@ -135,10 +136,9 @@ def delete_account():
         return jsonify(error="Password is incorrect."), 400
     if confirmation != "DELETE":
         return jsonify(error="Type DELETE to confirm account deletion."), 400
-
-    # Delete related preferences before the user to satisfy the existing FK.
-    # When trip models are introduced, add explicit cleanup/cascades here too.
-    from .models import TravelPreference
+    
+    from .models import TravelPreference, Trip
+    db.session.query(Trip).filter_by(user_id=user.id).delete()
     db.session.query(TravelPreference).filter_by(user_id=user.id).delete()
     db.session.delete(user)
     db.session.commit()

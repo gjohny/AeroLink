@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Preferences from "./pages/Preferences";
 import AccountSettings from "./pages/AccountSettings";
+import MyTrips from "./pages/MyTrips";
 
 import { getCurrentUser, logoutUser } from "./authApi";
 
@@ -34,11 +35,6 @@ function ComingSoon({ title, description }) {
 
 // Pages that will be connected to teammates' features later.
 const upcomingPages = {
-  "/trips": {
-    title: "My Trips",
-    description:
-      "Your saved trips and personalized itineraries will appear here.",
-  },
   "/recommendations": {
     title: "Personalized Recommendations",
     description:
@@ -180,7 +176,7 @@ export default function App() {
     checkingAuth &&
     (path === "/login" ||
       path === "/register" ||
-      protectedPaths.includes(path))
+      (path.startsWith("/trips/") || protectedPaths.includes(path)))
   ) {
     page = (
       <p
@@ -259,6 +255,21 @@ export default function App() {
     ) : (
       <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />
     );
+  } else if (path === "/trips" || path.startsWith("/trips/")) {
+    const segments = path.split("/").filter(Boolean);
+    const tripId = segments.length >= 2 && /^\d+$/.test(segments[1]) ? segments[1] : null;
+    const tool = segments.length === 3 ? segments[2] : null;
+    const toolNames = { recommendations: "Recommendations", itineraries: "Itineraries", budget: "Budget", flights: "Flight Alerts", weather: "Weather", airports: "Airport Data" };
+    page = user ? (tripId && tool && toolNames[tool] ? (
+      <section className="aero-coming-soon"><div className="aero-coming-soon-card">
+        <h1>{toolNames[tool]}</h1>
+        <button type="button" onClick={() => goTo(`/trips/${tripId}`)}>← Back to Trip</button>
+      </div></section>
+    ) : segments.length > 2 || (segments.length === 2 && !tripId) ? (
+      <div style={{ padding: 40 }}>Trip page not found.</div>
+    ) : <MyTrips onNavigate={goTo} selectedTripId={tripId} />) : (
+      <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />
+    );
   } else if (Object.hasOwn(upcomingPages, path)) {
     page = user ? (
       <ComingSoon {...upcomingPages[path]} />
@@ -285,9 +296,6 @@ export default function App() {
     ...(user && !checkingAuth
       ? [
           ["/trips", "My Trips"],
-          ["/recommendations", "Recommendations"],
-          ["/budget", "Budget"],
-          ["/updates", "Travel Updates"],
         ]
       : []),
   ];

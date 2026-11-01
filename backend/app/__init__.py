@@ -23,6 +23,9 @@ def create_app(config_class=Config):
 
     app.register_blueprint(preferences_api)
 
+    from .trips import trips_api
+    app.register_blueprint(trips_api)
+
     with app.app_context():
         from . import models  # noqa: F401  (registers models)
 

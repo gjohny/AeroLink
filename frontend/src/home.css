@@ -1,8 +1,4 @@
 
-/* ==========================================
-   AeroLink Homepage — Option 2 Scenic Hero
-   ========================================== */
-
 .aero-home {
   width: 100%;
   max-width: 1280px;
@@ -96,7 +92,6 @@
   outline-offset: 3px;
 }
 
-/* Overlapping white panel */
 .aero-home-features {
   position: relative;
   z-index: 2;
@@ -163,7 +158,6 @@
   line-height: 1.6;
 }
 
-/* Shared AeroLink navigation */
 .app.aero-app {
   width: 100%;
   max-width: none;
@@ -358,7 +352,7 @@
 
 
 
-/* Full-width navigation */
+
 html,
 body,
 #root {
@@ -391,7 +385,7 @@ body,
 }
 
 
-/* Center the hero and feature cards independently */
+
 .app.aero-app .aero-page-content {
   width: 100%;
   max-width: 1440px;
@@ -399,9 +393,7 @@ body,
 }
 
 
-/* =========================================
-   AeroLink — Full-width layout
-   ========================================= */
+
 
 html,
 body,
@@ -425,7 +417,7 @@ body,
   background: #f8faff;
 }
 
-/* Navbar blends into the page background */
+
 .app.aero-app .navigation {
   width: 100%;
   max-width: none;
@@ -439,7 +431,7 @@ body,
   background: transparent;
 }
 
-/* Remove centered page-width restriction */
+
 .app.aero-app .aero-page-content {
   width: 100%;
   max-width: none;
@@ -453,13 +445,13 @@ body,
   margin: 0;
   padding: 0 24px 48px;
 }
-/* Expand the feature panel */
+
 .aero-home-features {
   max-width: none;
   width: calc(100% - 48px);
 }
 
-/* Responsive spacing */
+
 @media (max-width: 620px) {
   .app.aero-app .navigation {
     padding: 16px;
@@ -471,7 +463,7 @@ body,
 }
 
 
-/* Full-width authentication page backgrounds */
+
 .app.aero-app .auth-page {
   width: 100%;
   max-width: none;
@@ -480,7 +472,7 @@ body,
   box-sizing: border-box;
 }
 
-/* Keep forms readable */
+
 .app.aero-app .auth-card {
   width: min(100% - 32px, 480px);
   max-width: 480px;
@@ -493,10 +485,6 @@ body,
   padding: 0;
 }
 
-
-/* ========================================
-   AeroLink application navigation
-   ======================================== */
 
 .app.aero-app .navigation {
   display: flex;
@@ -553,8 +541,6 @@ body,
   font-size: 13px;
   font-weight: 600;
 }
-
-/* Coming Soon pages */
 
 .aero-coming-soon {
   display: flex;
@@ -639,7 +625,6 @@ body,
 }
 
 
-/* Option A: account dropdown — overrides earlier generic nav button styles */
 .app.aero-app .navigation .aero-profile {
   position: relative;
   display: flex;

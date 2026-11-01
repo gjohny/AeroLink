@@ -89,7 +89,7 @@ export default function Register({ onSuccess, onNavigate }) {
             <input
               id="register-password"
               type="password"
-              placeholder="At least 0 characters"
+              placeholder="At least 10 characters"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
