@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import AlertWidget from "./components/AlertWidget.jsx";
 
 export default function App() {
   const [path, setPath] = useState(window.location.pathname);
@@ -54,6 +55,7 @@ export default function App() {
         ))}
       </nav>
       {page}
+      <AlertWidget />
     </main>
   );
 }
