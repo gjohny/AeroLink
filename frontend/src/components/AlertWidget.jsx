@@ -13,13 +13,13 @@ function timeAgo(iso) {
   }
 
   if (minutes < 60){
-    return '${minutes} min ago';
+    return `${minutes} min ago`;
   }
 
   const hours = Math.round(minutes / 60);
 
   if (hours < 24){
-    return '${hours} hr ago';
+    return `${hours} hr ago`;
   }
 
   return new Date(iso).toLocaleDateString();
@@ -122,7 +122,7 @@ export default function AlertWidget() {
     }
   }
 
-  const bellLabel = unread > 0 ? 'Alerts, ${unread} unread' : "Alerts, none unread";
+  const bellLabel = unread > 0 ? `Alerts, ${unread} unread` : "Alerts, none unread";
 
   return (
     <div className="alert-widget">
@@ -150,8 +150,8 @@ export default function AlertWidget() {
           <ul className = "alert-list">
             {alerts.map((alert) => (
               <li key = {alert.id}>
-                <button type = "button" className = {'alert-item${alert.is_read ? "" : " alert-item-unread"}'} aria-expanded = {expandedId === alert.id} onClick = {() => openAlert(alert)}>
-                  <span className = {'alert-chip alert-chip-${alert.alert_type}'}>
+                <button type = "button" className = {`alert-item${alert.is_read ? "" : " alert-item-unread"}`} aria-expanded = {expandedId === alert.id} onClick = {() => openAlert(alert)}>
+                  <span className = {`alert-chip alert-chip-${alert.alert_type}`}>
                     {TYPE_LABELS[alert.alert_type] || "Update"}
                   </span>
                   <span className = "alert-text">{alert.message}</span>
@@ -171,7 +171,7 @@ export default function AlertWidget() {
       <button type = "button" className = "alert-bell" aria-label = {bellLabel} aria-expanded = {open} title = {bellLabel} onClick = {() => setOpen((value) => !value)}>
         <BellIcon />
         {unread > 0 && (
-          <span className = {'alert-badge${justArrived ? " alert-badge-pulse" : ""}'} aria-hidden = "true">
+          <span className = {`alert-badge${justArrived ? " alert-badge-pulse" : ""}`} aria-hidden = "true">
             !
           </span>
         )}
