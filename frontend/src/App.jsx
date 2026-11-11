@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Preferences from "./pages/Preferences";
 import AccountSettings from "./pages/AccountSettings";
 import MyTrips from "./pages/MyTrips";
+import Weather from "./pages/Weather";
 
 import { getCurrentUser, logoutUser } from "./authApi";
 
@@ -260,7 +261,9 @@ export default function App() {
     const tripId = segments.length >= 2 && /^\d+$/.test(segments[1]) ? segments[1] : null;
     const tool = segments.length === 3 ? segments[2] : null;
     const toolNames = { recommendations: "Recommendations", itineraries: "Itineraries", budget: "Budget", flights: "Flight Alerts", weather: "Weather", airports: "Airport Data" };
-    page = user ? (tripId && tool && toolNames[tool] ? (
+    page = user ? (tripId && tool === "weather" && segments.length === 3 ? (
+      <Weather key={tripId} tripId={tripId} onNavigate={goTo} />
+    ) : tripId && tool && toolNames[tool] ? (
       <section className="aero-coming-soon"><div className="aero-coming-soon-card">
         <h1>{toolNames[tool]}</h1>
         <button type="button" onClick={() => goTo(`/trips/${tripId}`)}>← Back to Trip</button>

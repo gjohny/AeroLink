@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import "../trips.css";
+import WeatherSummary from "../components/WeatherSummary";
+import DestinationAutocomplete from "../components/DestinationAutocomplete";
 import { PREFERENCE_GROUPS } from "../data/preferenceOptions";
 
 const CATEGORIES = PREFERENCE_GROUPS.map(({ key, label }) => [key, label]);
@@ -33,6 +35,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
   const [creating, setCreating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [destinationLocation, setDestinationLocation] = useState(null);
   const [savedPreferences, setSavedPreferences] = useState({});
   const [customPreferences, setCustomPreferences] = useState({});
   const [editingCategory, setEditingCategory] = useState(null);
@@ -120,11 +123,13 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
         travelers: Number(form.travelers),
         budget: form.budget === "" ? null : Number(form.budget),
         preferences: customPreferences,
+        destination_location: destinationLocation,
       };
       const result = await api("/api/trips", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       setTrips((old) => [result.trip, ...old]);
       setCreating(false);
       setForm(emptyForm);
+      setDestinationLocation(null);
       onNavigate(`/trips/${result.trip.id}`);
     } catch (err) {
       setError(err.message);
@@ -164,7 +169,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
   return (
     <section className="trips-page">
       <header className="trips-hero">
-        <div><span className="trips-eyebrow">✈ YOUR TRAVEL PLANS</span><h1>{selectedTrip ? selectedTrip.destination : "My Trips"}</h1><p>{selectedTrip ? `${formatDate(selectedTrip.start_date)} – ${formatDate(selectedTrip.end_date)}` : "Your adventures, all in one place."}</p></div>
+        <div><span className="trips-eyebrow">Your travel plans</span><h1>{selectedTrip ? selectedTrip.destination : "My Trips"}</h1><p>{selectedTrip ? `${formatDate(selectedTrip.start_date)} – ${formatDate(selectedTrip.end_date)}` : "Plan a trip, pick up where you left off."}</p></div>
         <button type="button" className="trips-primary" onClick={() => selectedTrip ? onNavigate("/trips") : setCreating((value) => !value)}>{selectedTrip ? "← All Trips" : creating ? "Cancel" : "+ Create New Trip"}</button>
       </header>
 
@@ -176,7 +181,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
         return <div className="trips-editor-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEditor(false); }}>
           <section className="trips-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="trips-editor-title">
             <div className="trips-editor-header">
-              <div><span className="trips-editor-eyebrow">TRIP PREFERENCES</span><h2 id="trips-editor-title">{group.label}</h2><p>Select from all available options or add your own.</p></div>
+              <div><span className="trips-editor-eyebrow">Trip preferences</span><h2 id="trips-editor-title">{group.label}</h2><p>Select from all available options or add your own.</p></div>
               <button type="button" className="trips-editor-close" onClick={() => closeEditor(false)} aria-label="Cancel and close editor">×</button>
             </div>
             <div className="trips-editor-content">
@@ -220,6 +225,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
             </div>
             <button type="button" className="trips-delete trips-detail-delete" onClick={() => deleteTrip(selectedTrip)}>Delete Trip</button>
           </div>
+          <WeatherSummary tripId={selectedTrip.id} trip={selectedTrip} onNavigate={onNavigate} />
           <h2 className="trips-section-heading">Your Trip Tools</h2>
           <div className="trips-tools">
             {tools.map((tool) => (
@@ -236,7 +242,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
           {creating && <form className="trips-create" onSubmit={createTrip}>
             <h2>Plan a New Trip</h2>
             <div className="trips-form-grid">
-              <label className="trips-wide">Destination<input required maxLength={200} placeholder="e.g. Rome, Italy" value={form.destination} onChange={(e) => update("destination", e.target.value)} /></label>
+              <DestinationAutocomplete value={form.destination} onChange={(text, location) => { update("destination", text); setDestinationLocation(location); }} />
               <label>Start Date<input required type="date" value={form.start_date} onChange={(e) => update("start_date", e.target.value)} /></label>
               <label>End Date<input required type="date" min={form.start_date || undefined} value={form.end_date} onChange={(e) => update("end_date", e.target.value)} /></label>
               <label>Budget (USD)<input type="number" min="0" step="0.01" placeholder="Optional" value={form.budget} onChange={(e) => update("budget", e.target.value)} /></label>

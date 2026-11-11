@@ -138,6 +138,9 @@ def delete_account():
         return jsonify(error="Type DELETE to confirm account deletion."), 400
     
     from .models import TravelPreference, Trip
+    from .weather.models import delete_weather
+    trip_ids = db.select(Trip.id).where(Trip.user_id == user.id)
+    delete_weather(trip_ids)
     db.session.query(Trip).filter_by(user_id=user.id).delete()
     db.session.query(TravelPreference).filter_by(user_id=user.id).delete()
     db.session.delete(user)

@@ -174,11 +174,12 @@ def create_trip():
             error="Not authenticated."
         ), 401
 
+    data = request.get_json(silent=True)
     try:
-        values = parse_trip(
-            request.get_json(silent=True),
-            user.id,
-        )
+        values = parse_trip(data, user.id)
+        # Keep an explicit autocomplete selection for weather; free-text trips still work.
+        from .weather.service import location_value
+        destination_location = location_value(data.get("destination_location"))
     except ValueError as exc:
         return jsonify(error=str(exc)), 400
 
@@ -195,6 +196,13 @@ def create_trip():
     )
 
     db.session.add(trip)
+    if destination_location:
+        from .weather.models import WeatherPlan
+        db.session.flush()
+        db.session.add(WeatherPlan(trip_id=trip.id, settings={
+            "destination": destination_location, "origin": None, "mode": "flight",
+            "outbound_time": None, "return_time": None,
+        }))
     db.session.commit()
 
     return jsonify(
@@ -249,6 +257,8 @@ def delete_trip(trip_id):
             error="Trip not found."
         ), 404
 
+    from .weather.models import delete_weather
+    delete_weather([trip.id])
     db.session.delete(trip)
     db.session.commit()
 
