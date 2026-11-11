@@ -26,6 +26,9 @@ def create_app(config_class=Config):
     from .trips import trips_api
     app.register_blueprint(trips_api)
 
+    from .weather import register_weather
+    register_weather(app)
+
     with app.app_context():
         from . import models  # noqa: F401  (registers models)
 
