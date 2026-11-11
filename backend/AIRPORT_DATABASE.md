@@ -22,7 +22,7 @@ python -m scripts.check_airports --code CLL
 python -m scripts.check_airports --city Houston --country US
 ```
 
-## Run tests
+##  Run automated tests
 
 ```powershell
 python -m unittest discover -s tests -v
