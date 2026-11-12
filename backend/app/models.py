@@ -261,3 +261,28 @@ class Trip(db.Model):
             "image_credit": self.image_credit,
             "created_at": self.created_at.isoformat(),
         }
+
+class Airport(db.Model):
+    """Local OurAirports reference data; no live flight status or API routes yet.
+
+    The primary key is the stable numeric ID from OurAirports. Keeping it means
+    the data can be refreshed without changing an airport's local identity.
+    """
+
+    __tablename__ = "airports"
+    __table_args__ = (
+        db.Index("ix_airports_country_municipality", "iso_country", "municipality"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    ident = db.Column(db.String(12), nullable=False)
+    type = db.Column(db.String(32), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    municipality = db.Column(db.String(160), nullable=True)
+    iso_country = db.Column(db.String(2), nullable=False, index=True)
+    iso_region = db.Column(db.String(16), nullable=True)
+    iata_code = db.Column(db.String(3), nullable=False, unique=True, index=True)
+    icao_code = db.Column(db.String(4), nullable=True, index=True)
+    latitude_deg = db.Column(db.Float, nullable=False)
+    longitude_deg = db.Column(db.Float, nullable=False)
+    scheduled_service = db.Column(db.Boolean, nullable=False, default=False)
