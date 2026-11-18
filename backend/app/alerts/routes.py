@@ -55,7 +55,7 @@ def receive_flight():
     try:
         created = ingest_flight(record)
     except ValueError as err:
-        return jsonify(erro = str(err)), 400
+        return jsonify(error = str(err)), 400
 
     new_alerts = []
     for a in created:

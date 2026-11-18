@@ -16,6 +16,22 @@ def create_app(config_class=Config):
 
     app.register_blueprint(api)
 
+    from .auth import auth
+    
+    app.register_blueprint(auth)
+
+    from .preferences import preferences_api
+
+    app.register_blueprint(preferences_api)
+
+    from .trips import trips_api
+
+    app.register_blueprint(trips_api)
+
+    from .trip_sharing import sharing_api
+    
+    app.register_blueprint(sharing_api)
+
     from .alerts.routes import alerts_bp
 
     app.register_blueprint(alerts_bp)
