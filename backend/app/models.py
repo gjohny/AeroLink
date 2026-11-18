@@ -1,10 +1,6 @@
-
 from datetime import datetime, timezone
 
-from werkzeug.security import (
-    generate_password_hash,
-    check_password_hash,
-)
+from werkzeug.security import (generate_password_hash, check_password_hash)
 
 from .extensions import db
 
@@ -286,3 +282,25 @@ class Airport(db.Model):
     latitude_deg = db.Column(db.Float, nullable=False)
     longitude_deg = db.Column(db.Float, nullable=False)
     scheduled_service = db.Column(db.Boolean, nullable=False, default=False)
+
+class TripMember(db.Model):
+    # A user who was given access to someone else's trip with a share code
+
+    __tablename__ = "trip_members"
+    __table_args__ = (db.UniqueConstraint("trip_id", "user_id", name="uq_trip_member"),)
+
+    id = db.Column(db.Integer, primary_key = True)
+    trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable = False, index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable = False, index = True)
+    joined_at = db.Column(db.DateTime, nullable = False, default = lambda: datetime.now(timezone.utc))
+
+
+class TripShareCode(db.Model):
+    # The share code for a trip. Each trip has at most one code
+
+    __tablename__ = "trip_share_codes"
+
+    id = db.Column(db.Integer, primary_key = True)
+    trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable = False, unique = True)
+    code = db.Column(db.String(8), nullable = False, unique = True, index = True)
+    created_at = db.Column(db.DateTime, nullable = False, default = lambda: datetime.now(timezone.utc))
