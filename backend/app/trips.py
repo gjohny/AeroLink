@@ -7,6 +7,7 @@ from flask import Blueprint, jsonify, request, session
 from .extensions import db
 from .models import User, Trip, TravelPreference
 from .destination_images import find_destination_photo
+from .trip_sharing import accessible_trip, accessible_trips, remove_sharing, trip_for_user
 
 
 trips_api = Blueprint("trips_api", __name__, url_prefix="/api/trips")
@@ -151,17 +152,15 @@ def list_trips():
             error="Not authenticated."
         ), 401
 
-    trips = db.session.execute(
-        db.select(Trip)
-        .filter_by(user_id=user.id)
-        .order_by(
-            Trip.start_date.desc(),
-            Trip.id.desc(),
-        )
-    ).scalars().all()
+    # Trips the user owns plus trips shared with them
+    trips = accessible_trips(user)
+
+    trip_list = []
+    for trip in trips:
+        trip_list.append(trip_for_user(trip, user))
 
     return jsonify(
-        trips=[trip.to_dict() for trip in trips]
+        trips=trip_list
     )
 
 
@@ -198,7 +197,7 @@ def create_trip():
     db.session.commit()
 
     return jsonify(
-        trip=trip.to_dict()
+        trip=trip_for_user(trip, user)
     ), 201
 
 
@@ -211,12 +210,8 @@ def get_trip(trip_id):
             error="Not authenticated."
         ), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    # Owners and members can both open the trip
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(
@@ -224,7 +219,7 @@ def get_trip(trip_id):
         ), 404
 
     return jsonify(
-        trip=trip.to_dict()
+        trip=trip_for_user(trip, user)
     ), 200
 
 
@@ -237,18 +232,21 @@ def delete_trip(trip_id):
             error="Not authenticated."
         ), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    # Owners and members can both open the trip
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(
             error="Trip not found."
         ), 404
 
+    # Only the owner can delete. Members use "Leave trip" instead.
+    if trip.user_id != user.id:
+        return jsonify(
+            error="Only the trip owner can delete this trip."
+        ), 403
+
+    remove_sharing(trip)
     db.session.delete(trip)
     db.session.commit()
 
@@ -266,12 +264,8 @@ def update_trip_photo(trip_id):
             error="Not authenticated."
         ), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    # Owners and members can both open the trip
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(
@@ -297,5 +291,5 @@ def update_trip_photo(trip_id):
     db.session.commit()
 
     return jsonify(
-        trip=trip.to_dict()
+        trip=trip_for_user(trip, user)
     )

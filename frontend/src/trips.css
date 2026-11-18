@@ -129,3 +129,29 @@
 .trips-page .trips-detail-delete {
   font-weight: 700;
 }
+
+/* Trip sharing */
+.trips-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.trips-secondary { border: 1px solid #b9cdf3; border-radius: 12px; background: #fff; color: #245dea; font-weight: 750; padding: 15px 22px; cursor: pointer; white-space: nowrap; }
+.trips-secondary:hover { border-color: #377afa; background: #f6f9ff; }
+/* Share and Delete (or Leave) sit together in the card's bottom-right corner, where Delete used to be */
+.trips-page .trips-detail-actions { position: absolute; right: 16px; bottom: 16px; display: flex; gap: 8px; align-items: center; }
+.trips-page .trips-detail-actions .trips-detail-delete { position: static; }
+.trips-share { border: 1px solid #b9cdf3; border-radius: 10px; background: #f3f7ff; color: #245dea; font-weight: 700; padding: 7px 12px; font-size: 12px; cursor: pointer; }
+.trips-share:hover { border-color: #377afa; }
+.trips-shared-note { color: #2865e8 !important; font-size: 14px; font-weight: 600; }
+.trips-share-panel { display: flex; align-items: center; gap: 18px; margin-top: 18px; padding: 18px 22px; border: 1px dashed #9dbbf5; border-radius: 16px; background: #f6f9ff; }
+.trips-share-panel p { margin: 6px 0 0; color: #60738e; font-size: 14px; }
+.trips-share-panel > div { flex: 1; }
+.trips-share-code { font-size: 24px; font-weight: 800; letter-spacing: 3px; color: #192b59; background: #fff; border: 1px solid #d5e2f8; border-radius: 10px; padding: 10px 16px; white-space: nowrap; }
+.trips-join p { color: #60738e; margin-top: 0; }
+.trips-join-row { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+.trips-join-row label { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 9px; font-weight: 700; color: #30445f; }
+.trips-join-row input { padding: 15px; border: 1px solid #cbdcf6; border-radius: 11px; font: inherit; color: #233958; background: #fff; text-transform: uppercase; letter-spacing: 2px; }
+.trips-join-row input:focus { outline: 2px solid #8db3ff; }
+.trips-card .trips-card-body > em.trips-shared-tag { display: inline-block; margin: 0 0 10px; padding: 3px 10px; border-radius: 999px; background: #eaf1ff; color: #245dea; font-size: 12px; font-style: normal; font-weight: 700; }
+@media (max-width: 650px) {
+  .trips-hero-actions { margin-top: 20px; }
+  .trips-hero .trips-hero-actions .trips-primary { margin-top: 0; }
+  .trips-share-panel { flex-direction: column; align-items: stretch; text-align: center; }
+}
