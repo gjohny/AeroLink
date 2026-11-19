@@ -1,0 +1,200 @@
+
+.preferences-tabs-page {
+  width: 100%;
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 22px 32px 48px;
+  box-sizing: border-box;
+}
+.preferences-tabs-page .preferences-tabs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 30px 34px;
+  border: 1px solid #d7e5fa;
+  border-radius: 22px;
+  background: linear-gradient(110deg, #fff 30%, #e6f0ff 100%);
+}
+.preferences-tabs-page .preferences-tabs-header h1 {
+  margin: 10px 0;
+  font-size: clamp(28px, 3vw, 38px);
+  color: #172554;
+}
+.preferences-tabs-page .preferences-tabs-header p {
+  margin: 0;
+  max-width: 620px;
+  color: #64748b;
+  line-height: 1.6;
+}
+.preferences-tabs-page .preferences-tabs-save {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.preferences-tabs-page .preferences-tabs-status {
+  min-height: 30px;
+  margin: 12px 0 4px;
+}
+.preferences-tabs-page .preferences-tabs-status p {
+  margin: 0;
+}
+.preferences-tabs-page .preferences-unsaved {
+  color: #9a6700;
+  font-size: 13px;
+}
+.preferences-tabs-page .preferences-tab-strip {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #dbe5f1;
+  margin-bottom: 20px;
+}
+.preferences-tabs-page .preferences-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex: 1;
+  padding: 16px 12px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: #52627b;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.preferences-tabs-page .preferences-tab:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.preferences-tabs-page .preferences-tab.is-active {
+  border-bottom-color: #2563eb;
+  color: #1d4ed8;
+}
+.preferences-tabs-page .preferences-tab-icon {
+  font-size: 21px;
+  line-height: 1;
+}
+.preferences-tabs-page .preferences-tab-panel {
+  display: block;
+  width: 100%;
+  min-height: 270px;
+  padding: 30px 34px;
+  box-sizing: border-box;
+}
+.preferences-tabs-page .preferences-tab-panel h3 {
+  margin: 25px 0 12px;
+}
+.preferences-tabs-page .preferences-tabs-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 18px;
+}
+.preferences-tabs-page .preferences-tabs-step {
+  color: #64748b;
+  font-size: 13px;
+}
+.preferences-tabs-page .preferences-tabs-back,
+.preferences-tabs-page .preferences-tabs-next {
+  padding: 12px 18px;
+  border: 1px solid #cbdcf6;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.preferences-tabs-page .preferences-tabs-back {
+  background: #fff;
+  color: #334155;
+}
+.preferences-tabs-page .preferences-tabs-next {
+  background: #2563eb;
+  color: #fff;
+}
+.preferences-tabs-page .preferences-tabs-next:hover {
+  background: #1d4ed8;
+}
+.preferences-tabs-page .preferences-tabs-back:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.preferences-tabs-page .preferences-tab:focus-visible,
+.preferences-tabs-page .preferences-tabs-footer button:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+@media (max-width: 700px) {
+  .preferences-tabs-page { padding: 16px 16px 36px; }
+  .preferences-tabs-page .preferences-tabs-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 22px;
+  }
+  .preferences-tabs-page .preferences-tab { gap: 5px; font-size: 12px; padding: 13px 5px; }
+  .preferences-tabs-page .preferences-tab-panel { padding: 24px 18px; }
+  .preferences-tabs-page .preferences-tabs-footer { flex-wrap: wrap; }
+  .preferences-tabs-page .preferences-tabs-save { width: auto; }
+}
+
+.preferences-custom-entry {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  margin-bottom: 18px;
+}
+.preferences-custom-entry input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid #cbdcf3;
+  border-radius: 10px;
+  font: inherit;
+  background: #fff;
+  color: #172554;
+}
+.preferences-custom-entry button {
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.preferences-custom-entry button:disabled { opacity: 0.45; cursor: not-allowed; }
+@media (max-width: 540px) { .preferences-custom-entry { flex-direction: column; } }
+
+
+.preferences-dietary-note {
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 4px 0 14px;
+}
+
+
+.preferences-page input[type="text"] {
+  background: #ffffff;
+  color: #172554;
+  border: 1.5px solid #d7e3f5;
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 15px;
+  outline: none;
+  box-shadow: none;
+  color-scheme: light;
+}
+
+.preferences-page input[type="text"]::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
+.preferences-page input[type="text"]:focus {
+  border-color: #3978ff;
+  box-shadow: 0 0 0 3px rgba(57, 120, 255, 0.12);
+}
