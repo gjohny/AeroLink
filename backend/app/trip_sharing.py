@@ -3,6 +3,7 @@ Trip sharing: the owner creates a code, and another user enters it to join the t
 
 Both people then see the same trip row, so any change to the trip shows up for both.
 Only the owner can share or delete the trip. A member can only leave it.
+The owner can also stop sharing with one person or with everyone, without deleting the trip.
 """
 
 import secrets
@@ -52,7 +53,7 @@ def trip_for_user(trip, user):
     # The trip's normal JSON, plus who owns it and who it is shared with
     data = trip.to_dict()
     owner = db.session.get(User, trip.user_id)
-    members = db.session.execute(db.select(User.name).join(TripMember, TripMember.user_id == User.id).filter(TripMember.trip_id == trip.id).order_by(TripMember.joined_at)).scalars().all()
+    members = db.session.execute(db.select(User.id, User.name).join(TripMember, TripMember.user_id == User.id).filter(TripMember.trip_id == trip.id).order_by(TripMember.joined_at)).all()
 
     data["is_owner"] = trip.user_id == user.id
 
@@ -61,7 +62,17 @@ def trip_for_user(trip, user):
     else:
         data["owner_name"] = None
 
-    data["shared_with"] = list(members)
+    shared_with = []
+    for member in members:
+        shared_with.append(member.name)
+    data["shared_with"] = shared_with
+
+    # Only the owner needs member ids, so they can remove a specific person
+    if data["is_owner"]:
+        member_list = []
+        for member in members:
+            member_list.append({"id": member.id, "name": member.name})
+        data["members"] = member_list
 
     return data
 
@@ -180,3 +191,48 @@ def leave_trip(trip_id):
     db.session.commit()
 
     return jsonify(message = "You left the trip."), 200
+
+
+@sharing_api.delete("/<int:trip_id>/members/<int:member_id>")
+def remove_member(trip_id, member_id):
+    user = current_user()
+    if not user:
+        return jsonify(error = "Not authenticated."), 401
+
+    trip = accessible_trip(user, trip_id)
+    if not trip:
+        return jsonify(error = "Trip not found."), 404
+    if trip.user_id != user.id:
+        return jsonify(error = "Only the trip owner can remove people from this trip."), 403
+
+    membership = db.session.execute(db.select(TripMember).filter_by(trip_id = trip.id, user_id = member_id)).scalar_one_or_none()
+    if membership is None:
+        return jsonify(error = "That person is not on this trip."), 404
+
+    db.session.delete(membership)
+
+    # Retire the old code so the removed person can't rejoin with it.
+    # Everyone else stays on the trip, and the owner gets a new code the next time they share.
+    db.session.execute(db.delete(TripShareCode).filter_by(trip_id = trip.id))
+    db.session.commit()
+
+    return jsonify(trip = trip_for_user(trip, user)), 200
+
+
+@sharing_api.delete("/<int:trip_id>/share")
+def stop_sharing(trip_id):
+    user = current_user()
+    if not user:
+        return jsonify(error = "Not authenticated."), 401
+
+    trip = accessible_trip(user, trip_id)
+    if not trip:
+        return jsonify(error = "Trip not found."), 404
+    if trip.user_id != user.id:
+        return jsonify(error = "Only the trip owner can stop sharing this trip."), 403
+
+    # Removes every member and the code. The trip itself stays with the owner.
+    remove_sharing(trip)
+    db.session.commit()
+
+    return jsonify(trip = trip_for_user(trip, user)), 200

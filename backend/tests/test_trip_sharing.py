@@ -138,6 +138,74 @@ class TripSharingTests(unittest.TestCase):
         self.assertEqual(anonymous.post(f"/api/trips/{self.trip_id}/share").status_code, 401)
         self.assertEqual(anonymous.post("/api/trips/join", json = {"code": "ABCD-EFGH"}).status_code, 401)
         self.assertEqual(anonymous.post(f"/api/trips/{self.trip_id}/leave").status_code, 401)
+        self.assertEqual(anonymous.delete(f"/api/trips/{self.trip_id}/share").status_code, 401)
+        self.assertEqual(anonymous.delete(f"/api/trips/{self.trip_id}/members/1").status_code, 401)
+
+    def member_id(self, name):
+        members = self.owner.get(f"/api/trips/{self.trip_id}").get_json()["trip"]["members"]
+        for member in members:
+            if member["name"] == name:
+                return member["id"]
+
+        return None
+
+    def test_owner_sees_member_ids_but_members_do_not(self):
+        self.join(self.friend, self.share())
+        owner_view = self.owner.get(f"/api/trips/{self.trip_id}").get_json()["trip"]
+        friend_view = self.friend.get(f"/api/trips/{self.trip_id}").get_json()["trip"]
+
+        self.assertEqual(owner_view["members"][0]["name"], "Friend")
+        self.assertNotIn("members", friend_view)
+
+    def test_owner_removes_one_person_and_others_stay(self):
+        code = self.share()
+        self.join(self.friend, code)
+        self.join(self.stranger, code)
+
+        response = self.owner.delete(f"/api/trips/{self.trip_id}/members/{self.member_id('Friend')}")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["trip"]["shared_with"], ["Stranger"])
+
+        self.assertEqual(self.friend.get("/api/trips").get_json()["trips"], [])
+        self.assertEqual(len(self.stranger.get("/api/trips").get_json()["trips"]), 1)
+
+    def test_removed_person_cannot_rejoin_with_old_code(self):
+        code = self.share()
+        self.join(self.friend, code)
+        self.owner.delete(f"/api/trips/{self.trip_id}/members/{self.member_id('Friend')}")
+
+        self.assertEqual(self.join(self.friend, code).status_code, 404)
+
+        # Sharing again gives a new code that works
+        new_code = self.share()
+        self.assertNotEqual(new_code, code)
+        self.assertEqual(self.join(self.friend, new_code).status_code, 201)
+
+    def test_stop_sharing_removes_everyone_but_keeps_the_trip(self):
+        code = self.share()
+        self.join(self.friend, code)
+        self.join(self.stranger, code)
+
+        response = self.owner.delete(f"/api/trips/{self.trip_id}/share")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["trip"]["shared_with"], [])
+
+        self.assertEqual(self.friend.get("/api/trips").get_json()["trips"], [])
+        self.assertEqual(self.stranger.get("/api/trips").get_json()["trips"], [])
+        self.assertEqual(len(self.owner.get("/api/trips").get_json()["trips"]), 1)
+        self.assertEqual(self.join(self.friend, code).status_code, 404)
+
+    def test_members_cannot_remove_people_or_stop_sharing(self):
+        code = self.share()
+        self.join(self.friend, code)
+        self.join(self.stranger, code)
+        stranger_id = self.member_id("Stranger")
+
+        self.assertEqual(self.friend.delete(f"/api/trips/{self.trip_id}/members/{stranger_id}").status_code, 403)
+        self.assertEqual(self.friend.delete(f"/api/trips/{self.trip_id}/share").status_code, 403)
+
+    def test_removing_someone_not_on_the_trip(self):
+        self.assertEqual(self.owner.delete(f"/api/trips/{self.trip_id}/members/9999").status_code, 404)
 
 
 if __name__ == "__main__":

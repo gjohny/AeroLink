@@ -47,6 +47,9 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
   const [joinSaving, setJoinSaving] = useState(false);
   const [shareCode, setShareCode] = useState("");
   const [copied, setCopied] = useState(false);
+  // In-app confirmation dialog: { eyebrow, title, message, confirmLabel, onConfirm }
+  const [confirming, setConfirming] = useState(null);
+  const [confirmBusy, setConfirmBusy] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -70,6 +73,16 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
     setShareCode("");
     setCopied(false);
   }, [selectedTripId]);
+
+  // Escape closes the confirmation dialog
+  useEffect(() => {
+    if (!confirming) return undefined;
+    const onKey = (event) => {
+      if (event.key === "Escape" && !confirmBusy) setConfirming(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [confirming, confirmBusy]);
   const update = (key, value) => setForm((old) => ({ ...old, [key]: value }));
 
   function openEditor(key) {
@@ -191,27 +204,92 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
     }
   }
 
-  async function leaveTrip(trip) {
-    if (!window.confirm(`Leave the trip to ${trip.destination}? You will need a new code from ${trip.owner_name || "the owner"} to rejoin.`)) return;
+  async function runConfirm() {
+    setConfirmBusy(true);
     try {
-      await api(`/api/trips/${trip.id}/leave`, { method: "POST" });
-      setTrips((old) => old.filter((item) => item.id !== trip.id));
-      onNavigate("/trips");
-    } catch (err) {
-      setError(err.message);
+      await confirming.onConfirm();
+    } finally {
+      setConfirmBusy(false);
+      setConfirming(null);
     }
   }
 
-  async function deleteTrip(trip) {
+  // Put an updated trip from the server back into the list
+  function replaceTrip(updated) {
+    setTrips((old) => old.map((item) => (item.id === updated.id ? updated : item)));
+  }
+
+  function leaveTrip(trip) {
+    setConfirming({
+      eyebrow: "LEAVE TRIP",
+      title: `Leave ${trip.destination}?`,
+      message: `This trip will be removed from your trips. You will need a new code from ${trip.owner_name || "the owner"} to rejoin.`,
+      confirmLabel: "Leave Trip",
+      onConfirm: async () => {
+        try {
+          await api(`/api/trips/${trip.id}/leave`, { method: "POST" });
+          setTrips((old) => old.filter((item) => item.id !== trip.id));
+          onNavigate("/trips");
+        } catch (err) {
+          setError(err.message);
+        }
+      },
+    });
+  }
+
+  function deleteTrip(trip) {
     const sharedNote = trip.shared_with?.length ? " It will also be removed for everyone you shared it with." : "";
-    if (!window.confirm(`Delete your trip to ${trip.destination}?${sharedNote} This cannot be undone.`)) return;
-    try {
-      await api(`/api/trips/${trip.id}`, { method: "DELETE" });
-      setTrips((old) => old.filter((item) => item.id !== trip.id));
-      onNavigate("/trips");
-    } catch (err) {
-      setError(err.message);
-    }
+    setConfirming({
+      eyebrow: "DELETE TRIP",
+      title: `Delete ${trip.destination}?`,
+      message: `This permanently deletes the trip.${sharedNote} This cannot be undone.`,
+      confirmLabel: "Delete Trip",
+      onConfirm: async () => {
+        try {
+          await api(`/api/trips/${trip.id}`, { method: "DELETE" });
+          setTrips((old) => old.filter((item) => item.id !== trip.id));
+          onNavigate("/trips");
+        } catch (err) {
+          setError(err.message);
+        }
+      },
+    });
+  }
+
+  function removeMember(trip, member) {
+    setConfirming({
+      eyebrow: "STOP SHARING",
+      title: `Remove ${member.name}?`,
+      message: `${member.name} will no longer see this trip. Your current share code will stop working, so share again to get a new code for anyone else you want to invite.`,
+      confirmLabel: "Remove",
+      onConfirm: async () => {
+        try {
+          const result = await api(`/api/trips/${trip.id}/members/${member.id}`, { method: "DELETE" });
+          replaceTrip(result.trip);
+          setShareCode("");
+        } catch (err) {
+          setError(err.message);
+        }
+      },
+    });
+  }
+
+  function stopSharing(trip) {
+    setConfirming({
+      eyebrow: "STOP SHARING",
+      title: "Stop sharing this trip?",
+      message: "Everyone you shared it with will lose access, and the share code will stop working. The trip stays in your trips.",
+      confirmLabel: "Stop Sharing",
+      onConfirm: async () => {
+        try {
+          const result = await api(`/api/trips/${trip.id}/share`, { method: "DELETE" });
+          replaceTrip(result.trip);
+          setShareCode("");
+        } catch (err) {
+          setError(err.message);
+        }
+      },
+    });
   }
 
   const tools = [
@@ -283,7 +361,6 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
                 {selectedTrip.travelers} {selectedTrip.travelers === 1 ? "traveler" : "travelers"} · {selectedTrip.budget == null ? "No budget set" : `$${selectedTrip.budget.toLocaleString()} budget`}
               </p>
               {!selectedTrip.is_owner && <p className="trips-shared-note">Shared with you by {selectedTrip.owner_name}</p>}
-              {selectedTrip.is_owner && selectedTrip.shared_with?.length > 0 && <p className="trips-shared-note">Shared with {selectedTrip.shared_with.join(", ")}</p>}
             </div>
             <div className="trips-detail-actions">
               {selectedTrip.is_owner
@@ -294,14 +371,35 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
                 : <button type="button" className="trips-delete trips-detail-delete" onClick={() => leaveTrip(selectedTrip)}>Leave Trip</button>}
             </div>
           </div>
-          {shareCode && selectedTrip.is_owner && (
-            <div className="trips-share-panel" role="status">
-              <div>
-                <strong>Share code</strong>
-                <p>Send this code to someone with an AeroLink account. They can enter it under <em>Add Shared Trip</em> on My Trips to see and edit this trip with you.</p>
+          {selectedTrip.is_owner && (shareCode || selectedTrip.members?.length > 0) && (
+            <div className="trips-share-panel">
+              {shareCode && (
+                <div className="trips-share-code-row" role="status">
+                  <div>
+                    <strong>Share code</strong>
+                    <p>Send this code to someone with an AeroLink account. They can enter it under <em>Add Shared Trip</em> on My Trips to see and edit this trip with you.</p>
+                  </div>
+                  <code className="trips-share-code">{shareCode}</code>
+                  <button type="button" className="trips-secondary" onClick={copyShareCode}>{copied ? "Copied ✓" : "Copy"}</button>
+                </div>
+              )}
+              {selectedTrip.members?.length > 0 && (
+                <div className="trips-members">
+                  <strong>Shared with</strong>
+                  <ul>
+                    {selectedTrip.members.map((member) => (
+                      <li key={member.id}>
+                        <span className="trips-member-avatar" aria-hidden="true">{member.name?.charAt(0)?.toUpperCase() || "?"}</span>
+                        <span className="trips-member-name">{member.name}</span>
+                        <button type="button" className="trips-member-remove" onClick={() => removeMember(selectedTrip, member)}>Remove</button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div className="trips-share-footer">
+                <button type="button" className="trips-stop-sharing" onClick={() => stopSharing(selectedTrip)}>Stop Sharing</button>
               </div>
-              <code className="trips-share-code">{shareCode}</code>
-              <button type="button" className="trips-secondary" onClick={copyShareCode}>{copied ? "Copied ✓" : "Copy"}</button>
             </div>
           )}
           <h2 className="trips-section-heading">Your Trip Tools</h2>
@@ -359,6 +457,21 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
           </form>}
           {trips.length ? <div className="trips-grid">{trips.map((trip) => <div className="trips-card" key={trip.id} role="button" tabIndex={0} onKeyDown={(event) => { if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onNavigate(`/trips/${trip.id}`); } }} onClick={() => onNavigate(`/trips/${trip.id}`)}><div className="trips-photo-wrap"><img src={trip.image_url || FALLBACK} alt={`View of ${trip.destination}`} onError={(e) => { if (!e.currentTarget.src.endsWith(FALLBACK)) e.currentTarget.src = FALLBACK; }} />{photoCredit(trip)}</div><div className="trips-card-body">{!trip.is_owner && <em className="trips-shared-tag">Shared by {trip.owner_name}</em>}<h2>{trip.destination}</h2><p>{formatDate(trip.start_date)} – {formatDate(trip.end_date)}</p><p>{trip.travelers} {trip.travelers === 1 ? "traveler" : "travelers"} · {trip.budget == null ? "Budget not set" : `$${trip.budget.toLocaleString()} budget`}</p><span>Open Trip →</span></div></div>)}</div> : !creating && !joining && <div className="trips-empty"><span>✈</span><h2>Your next adventure starts here</h2><p>Create your first trip to organize plans, recommendations, and travel updates.</p><button type="button" className="trips-primary" onClick={() => setCreating(true)}>+ Create Your First Trip</button></div>}
         </>
+      )}
+      {confirming && (
+        <div className="trips-editor-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget && !confirmBusy) setConfirming(null); }}>
+          <section className="trips-editor-dialog trips-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="trips-confirm-title" aria-describedby="trips-confirm-message">
+            <div className="trips-editor-header">
+              <div><span className="trips-editor-eyebrow">{confirming.eyebrow}</span><h2 id="trips-confirm-title">{confirming.title}</h2></div>
+              <button type="button" className="trips-editor-close" onClick={() => setConfirming(null)} disabled={confirmBusy} aria-label="Close dialog">×</button>
+            </div>
+            <p id="trips-confirm-message" className="trips-confirm-message">{confirming.message}</p>
+            <div className="trips-editor-footer trips-confirm-footer">
+              <button type="button" className="trips-secondary" autoFocus onClick={() => setConfirming(null)} disabled={confirmBusy}>Cancel</button>
+              <button type="button" className="trips-danger" onClick={runConfirm} disabled={confirmBusy}>{confirmBusy ? "Working..." : confirming.confirmLabel}</button>
+            </div>
+          </section>
+        </div>
       )}
     </section>
   );
