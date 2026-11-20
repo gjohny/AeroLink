@@ -171,6 +171,8 @@
 .alert-chip-delay { color: var(--alert-delay); }
 .alert-chip-gate_change { color: var(--alert-gate); }
 .alert-chip-cancellation { color: var(--alert-cancel); }
+.alert-chip-arrival_delay { color: var(--alert-delay); }
+.alert-chip-arrival_gate_change { color: var(--alert-gate); }
 
 .alert-text {
   font-size: 0.9rem;

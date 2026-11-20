@@ -296,7 +296,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
     { name: "Recommendations", icon: "heart", description: "Hotels, restaurants and activities", path: "recommendations" },
     { name: "Itineraries", icon: "calendar", description: "Plan each day of your trip", path: "itineraries" },
     { name: "Budget", icon: "wallet", description: "Track expenses and spending", path: "budget" },
-    { name: "Flight Alerts", icon: "plane", description: "Flight status and updates", path: "flights" },
+    { name: "Flight Plan", icon: "plane", description: "Your flights, status, and updates", path: "flight-plan" },
     { name: "Weather", icon: "sun", description: "Forecasts for your destination", path: "weather" },
     { name: "Airport Data", icon: "airport", description: "Nearby airport information", path: "airports" },
   ];

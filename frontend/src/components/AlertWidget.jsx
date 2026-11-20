@@ -4,7 +4,7 @@ import "./AlertWidget.css";
 
 const POLL_MS = 30000;
 
-const TYPE_LABELS = {delay: "Delay", gate_change: "Gate change", cancellation: "Cancelled"};
+const TYPE_LABELS = {delay: "Delay", arrival_delay: "Arrival delay", gate_change: "Gate change", arrival_gate_change: "Arrival gate", cancellation: "Cancelled"};
 
 function timeAgo(iso) {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
