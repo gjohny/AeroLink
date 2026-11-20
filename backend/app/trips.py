@@ -8,6 +8,7 @@ from .extensions import db
 from .models import User, Trip, TravelPreference
 from .destination_images import find_destination_photo
 from .trip_sharing import accessible_trip, accessible_trips, remove_sharing, trip_for_user
+from .alerts.flight_plan import remove_trip_flights
 
 
 trips_api = Blueprint("trips_api", __name__, url_prefix="/api/trips")
@@ -247,6 +248,7 @@ def delete_trip(trip_id):
         ), 403
 
     remove_sharing(trip)
+    remove_trip_flights(trip)
     db.session.delete(trip)
     db.session.commit()
 

@@ -88,7 +88,19 @@ class RuleAndCheckerTests(AlertTestCase):
 
 
 class ApiTests(AlertTestCase):
+    def log_in_with_flights(self, *scenarios):
+        #Alerts only show for flights on the user's trips, so make a user, a trip, and add each scenario's flight to it
+        self.client.post("/api/auth/register", json = {"name": "Tester", "email": "tester@example.com", "password": "password1234"})
+        trip = self.client.post("/api/trips", json = {"destination": "Rome, Italy", "start_date": "2026-11-01", "end_date": "2026-11-08", "travelers": 1, "use_saved_preferences": True}).get_json()["trip"]
+
+        for scenario in scenarios:
+            first = scenario[0]
+            res = self.client.post(f"/api/trips/{trip['id']}/flights", json = {"flight_number": first["flight_number"], "flight_date": first["scheduled_departure"][:10]})
+            self.assertEqual(res.status_code, 201)
+
     def test_post_flights_then_list_and_mark_read(self):
+        self.log_in_with_flights(mock_data.DELAYED)
+
         for record in mock_data.DELAYED:
             res = self.client.post("/api/flights", json=record)
             self.assertEqual(res.status_code, 201)
@@ -104,6 +116,8 @@ class ApiTests(AlertTestCase):
         self.assertEqual(self.client.get("/api/alerts?unread=1").get_json(), [])
 
     def test_read_all(self):
+        self.log_in_with_flights(mock_data.DELAYED, mock_data.GATE_CHANGED, mock_data.CANCELLED)
+
         for scenario in (mock_data.DELAYED, mock_data.GATE_CHANGED, mock_data.CANCELLED):
             for record in scenario:
                 self.client.post("/api/flights", json = record)
@@ -112,6 +126,9 @@ class ApiTests(AlertTestCase):
         res = self.client.post("/api/alerts/read-all")
         self.assertEqual(res.get_json(), {"updated": 3})
         self.assertEqual(self.client.get("/api/alerts?unread=1").get_json(), [])
+
+    def test_alerts_require_login(self):
+        self.assertEqual(self.client.get("/api/alerts").status_code, 401)
 
     def test_bad_flight_record_returns_400(self):
         res = self.client.post("/api/flights", json={"flight_number": "XX1"})
@@ -122,6 +139,7 @@ class ApiTests(AlertTestCase):
         self.assertEqual(self.client.post("/api/flights").status_code, 400)
 
     def test_mark_read_unknown_alert_returns_404(self):
+        self.log_in_with_flights()
         self.assertEqual(self.client.post("/api/alerts/999/read").status_code, 404)
 
     def test_existing_task_endpoints_still_work(self):

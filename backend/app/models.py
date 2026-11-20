@@ -23,38 +23,87 @@ class Task(db.Model):
 
 
 class Flight(db.Model):
-    #Latest known record for each flight. Alert checker compares new data against this
+    #Latest known live record for each flight on a given date. Alert checker compares new data against this
+    #The same flight number flies every day, so a flight is identified by its number AND its date
 
-    __tablename__ = "flights"
+    __tablename__ = "flight_statuses"
+    __table_args__ = (db.UniqueConstraint("flight_number", "flight_date", name = "uq_flight_status"),)
 
-    flight_number = db.Column(db.String(20), primary_key = True)
+    id = db.Column(db.Integer, primary_key = True)
+    flight_number = db.Column(db.String(20), nullable = False, index = True)
+    flight_date = db.Column(db.Date, nullable = False)
+    airline = db.Column(db.String(100))
+    status = db.Column(db.String(20), nullable = False, default = "scheduled")
 
-    #naive UTC
+    #Departure side. Times are naive UTC
+    departure_airport = db.Column(db.String(3))
     scheduled_departure = db.Column(db.DateTime, nullable = False)
     estimated_departure = db.Column(db.DateTime, nullable = False)
+    departure_terminal = db.Column(db.String(10))
+    gate = db.Column(db.String(10))  #departure gate
 
-    status = db.Column(db.String(20), nullable = False, default = "scheduled")
-    gate = db.Column(db.String(10))
+    #Arrival side. Times are naive UTC
+    arrival_airport = db.Column(db.String(3))
+    scheduled_arrival = db.Column(db.DateTime)
+    estimated_arrival = db.Column(db.DateTime)
+    arrival_terminal = db.Column(db.String(10))
+    arrival_gate = db.Column(db.String(10))
+
     last_updated = db.Column(db.DateTime, nullable = False, default = lambda: datetime.now(timezone.utc))
 
 
 class Alert(db.Model):
     #An alert created by one of the flag rules
 
-    __tablename__ = "alerts"
-    __table_args__ = (db.UniqueConstraint("flight_number", "alert_type", "dedupe_key", name = "uq_alert_event"),)
+    __tablename__ = "flight_alerts"
+    __table_args__ = (db.UniqueConstraint("flight_number", "flight_date", "alert_type", "dedupe_key", name = "uq_alert_event"),)
 
     id = db.Column(db.Integer, primary_key = True)
     flight_number = db.Column(db.String(20), nullable = False, index = True)
+    flight_date = db.Column(db.Date, nullable = False)
     alert_type = db.Column(db.String(30), nullable = False)
     message = db.Column(db.String(200), nullable = False)
     detail = db.Column(db.String(300))
     dedupe_key = db.Column(db.String(100), nullable = False)
+
+    #What changed, so the Flight Plan page can show the old value crossed out
+    old_value = db.Column(db.String(40))
+    new_value = db.Column(db.String(40))
+
     created_at = db.Column(db.DateTime, nullable = False, default = lambda: datetime.now(timezone.utc))
-    is_read = db.Column(db.Boolean, nullable = False, default = False)
 
     def to_dict(self):
-        return {"id": self.id, "flight_number": self.flight_number, "alert_type": self.alert_type, "message": self.message, "detail": self.detail, "created_at": self.created_at.isoformat() + "Z", "is_read": self.is_read}
+        return {"id": self.id, "flight_number": self.flight_number, "flight_date": self.flight_date.isoformat(), "alert_type": self.alert_type, "message": self.message, "detail": self.detail, "old_value": self.old_value, "new_value": self.new_value, "created_at": self.created_at.isoformat() + "Z"}
+
+
+class AlertRead(db.Model):
+    #Marks an alert as read for one user. On a shared trip, each person has their own read state
+
+    __tablename__ = "alert_reads"
+    __table_args__ = (db.UniqueConstraint("alert_id", "user_id", name = "uq_alert_read"),)
+
+    id = db.Column(db.Integer, primary_key = True)
+    alert_id = db.Column(db.Integer, db.ForeignKey("flight_alerts.id"), nullable = False, index = True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable = False, index = True)
+
+
+class TripFlight(db.Model):
+    #A flight the trip owner added to a trip on the Flight Plan page
+
+    __tablename__ = "trip_flights"
+    __table_args__ = (db.UniqueConstraint("trip_id", "flight_number", "flight_date", name = "uq_trip_flight"),)
+
+    id = db.Column(db.Integer, primary_key = True)
+    trip_id = db.Column(db.Integer, db.ForeignKey("trips.id"), nullable = False, index = True)
+    flight_number = db.Column(db.String(20), nullable = False)
+    flight_date = db.Column(db.Date, nullable = False)
+
+    #Typed in by the user. Live data fills these in too once it arrives
+    departure_airport = db.Column(db.String(3))
+    arrival_airport = db.Column(db.String(3))
+
+    created_at = db.Column(db.DateTime, nullable = False, default = lambda: datetime.now(timezone.utc))
+
 
 class User(db.Model):
     __tablename__ = "users"

@@ -36,6 +36,10 @@ def create_app(config_class=Config):
 
     app.register_blueprint(alerts_bp)
 
+    from .alerts.flight_plan import flight_plan_bp
+
+    app.register_blueprint(flight_plan_bp)
+
     with app.app_context():
         from . import models  # noqa: F401  (registers models)
 
