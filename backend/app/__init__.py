@@ -15,6 +15,12 @@ def create_app(config_class=Config):
 
     app.register_blueprint(api)
 
+    from .airports import airports_api
+    app.register_blueprint(airports_api)
+
+    from .flights import flights_api
+    app.register_blueprint(flights_api)
+
     from .auth import auth
 
     app.register_blueprint(auth)

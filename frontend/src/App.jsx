@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Preferences from "./pages/Preferences";
 import AccountSettings from "./pages/AccountSettings";
 import MyTrips from "./pages/MyTrips";
+import FlightUpdates from "./pages/FlightUpdates";
 
 import { getCurrentUser, logoutUser } from "./authApi";
 
@@ -45,16 +46,12 @@ const upcomingPages = {
     description:
       "Track travel expenses and manage your trip budget in one place.",
   },
-  "/updates": {
-    title: "Travel Updates",
-    description:
-      "Stay informed with flight alerts and weather updates for your trip.",
-  },
 };
 
 const protectedPaths = [
   "/preferences",
   "/account",
+  "/updates",
   ...Object.keys(upcomingPages),
 ];
 
@@ -260,7 +257,9 @@ export default function App() {
     const tripId = segments.length >= 2 && /^\d+$/.test(segments[1]) ? segments[1] : null;
     const tool = segments.length === 3 ? segments[2] : null;
     const toolNames = { recommendations: "Recommendations", itineraries: "Itineraries", budget: "Budget", flights: "Flight Alerts", weather: "Weather", airports: "Airport Data" };
-    page = user ? (tripId && tool && toolNames[tool] ? (
+    page = user ? (tripId && (tool === "flights" || tool === "airports") ? (
+      <FlightUpdates key={tool} initialTab={tool === "airports" ? "airports" : "flights"} onBack={() => goTo(`/trips/${tripId}`)} />
+    ) : tripId && tool && toolNames[tool] ? (
       <section className="aero-coming-soon"><div className="aero-coming-soon-card">
         <h1>{toolNames[tool]}</h1>
         <button type="button" onClick={() => goTo(`/trips/${tripId}`)}>← Back to Trip</button>
@@ -270,6 +269,8 @@ export default function App() {
     ) : <MyTrips onNavigate={goTo} selectedTripId={tripId} />) : (
       <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />
     );
+  } else if (path === "/updates") {
+    page = user ? <FlightUpdates /> : <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />;
   } else if (Object.hasOwn(upcomingPages, path)) {
     page = user ? (
       <ComingSoon {...upcomingPages[path]} />
@@ -296,6 +297,7 @@ export default function App() {
     ...(user && !checkingAuth
       ? [
           ["/trips", "My Trips"],
+          ["/updates", "Flight Updates"],
         ]
       : []),
   ];
