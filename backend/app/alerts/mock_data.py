@@ -7,6 +7,11 @@
 #    python -m app.alerts.mock_data AA100 2026-12-01 delayed
 #Demos: on_time, delayed, gate_change, arrival_changes, cancelled, busy (several changes in a row)
 
+#Test data and live data use the same record format, so the same rules and alerts apply to both.
+#Other scripts in this folder:
+#    python -m app.alerts.incident AA100 2026-12-01 gate     make up one incident on a flight's current data (live or test)
+#    python -m app.alerts.live_check                         check trip flights against live AirLabs data (uses the allowance)
+
 
 NORMAL = [{"flight_number": "AA100", "scheduled_departure": "2026-11-02T09:00:00Z", "estimated_departure": "2026-11-02T09:00:00Z", "status": "scheduled", "gate": "A4"},
     {"flight_number": "AA100", "scheduled_departure": "2026-11-02T09:00:00Z", "estimated_departure": "2026-11-02T09:05:00Z", "status": "scheduled", "gate": "A4"}]

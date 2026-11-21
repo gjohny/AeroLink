@@ -30,7 +30,7 @@ def check_delay(old, new, cfg):
         return None
     delay = _minutes_between(new["scheduled_departure"], new["estimated_departure"])
 
-    if delay < cfg.DELAY_THRESHOLD_MINUTES:
+    if delay < cfg.FLIGHT_DELAY_THRESHOLD_MINUTES:
         return None
     
     return {"type": "delay", "message": f"Flight {new['flight_number']} is delayed by {delay} minutes", "detail": (f"Scheduled {_fmt(new['scheduled_departure'])}, now expected {_fmt(new['estimated_departure'])}"), "dedupe_key": str(delay), "old_value": _iso(new["scheduled_departure"]), "new_value": _iso(new["estimated_departure"])}
@@ -45,7 +45,7 @@ def check_arrival_delay(old, new, cfg):
 
     delay = _minutes_between(new["scheduled_arrival"], new["estimated_arrival"])
 
-    if delay < cfg.DELAY_THRESHOLD_MINUTES:
+    if delay < cfg.FLIGHT_DELAY_THRESHOLD_MINUTES:
         return None
 
     return {"type": "arrival_delay", "message": f"Flight {new['flight_number']} will arrive {delay} minutes late", "detail": f"Scheduled arrival {_fmt(new['scheduled_arrival'])}, now expected {_fmt(new['estimated_arrival'])}", "dedupe_key": str(delay), "old_value": _iso(new["scheduled_arrival"]), "new_value": _iso(new["estimated_arrival"])}

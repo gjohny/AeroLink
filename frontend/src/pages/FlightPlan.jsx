@@ -9,7 +9,7 @@ const emptyForm = {flight_number: "", flight_date: "", departure_airport: "", ar
 //Same labels and color families as the alert bell
 const TYPE_LABELS = {delay: "Delay", arrival_delay: "Arrival delay", gate_change: "Gate change", arrival_gate_change: "Arrival gate", cancellation: "Cancelled"};
 
-const STATUS_LABELS = {scheduled: "On time", delayed: "Delayed", cancelled: "Cancelled", boarding: "Boarding", departed: "Departed", active: "In the air", en_route: "In the air", landed: "Landed", diverted: "Diverted"};
+const STATUS_LABELS = {scheduled: "On time", delayed: "Delayed", cancelled: "Cancelled", boarding: "Boarding", departed: "Departed", active: "In the air", en_route: "In the air", landed: "Landed", diverted: "Diverted", incident: "Incident", unknown: "Status unknown"};
 
 async function api(url, options = {}) {
   const response = await fetch(url, { credentials: "same-origin", ...options });

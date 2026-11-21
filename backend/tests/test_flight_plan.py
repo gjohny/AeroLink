@@ -18,7 +18,7 @@ from config import Config
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    DELAY_THRESHOLD_MINUTES = 20
+    FLIGHT_DELAY_THRESHOLD_MINUTES = 20
 
 
 TRIP = {"destination": "Rome, Italy", "start_date": "2026-12-01", "end_date": "2026-12-08", "travelers": 2, "use_saved_preferences": True}

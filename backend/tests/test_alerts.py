@@ -14,7 +14,7 @@ from config import Config
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    DELAY_THRESHOLD_MINUTES = 20
+    FLIGHT_DELAY_THRESHOLD_MINUTES = 20
 
 
 class AlertTestCase(unittest.TestCase):
@@ -102,7 +102,7 @@ class ApiTests(AlertTestCase):
         self.log_in_with_flights(mock_data.DELAYED)
 
         for record in mock_data.DELAYED:
-            res = self.client.post("/api/flights", json=record)
+            res = self.client.post("/api/flights/ingest", json=record)
             self.assertEqual(res.status_code, 201)
 
         alerts = self.client.get("/api/alerts").get_json()
@@ -120,7 +120,7 @@ class ApiTests(AlertTestCase):
 
         for scenario in (mock_data.DELAYED, mock_data.GATE_CHANGED, mock_data.CANCELLED):
             for record in scenario:
-                self.client.post("/api/flights", json = record)
+                self.client.post("/api/flights/ingest", json = record)
 
         self.assertEqual(len(self.client.get("/api/alerts?unread=1").get_json()), 3)
         res = self.client.post("/api/alerts/read-all")
@@ -131,12 +131,12 @@ class ApiTests(AlertTestCase):
         self.assertEqual(self.client.get("/api/alerts").status_code, 401)
 
     def test_bad_flight_record_returns_400(self):
-        res = self.client.post("/api/flights", json={"flight_number": "XX1"})
+        res = self.client.post("/api/flights/ingest", json={"flight_number": "XX1"})
         self.assertEqual(res.status_code, 400)
         self.assertIn("missing", res.get_json()["error"])
 
     def test_empty_body_returns_400(self):
-        self.assertEqual(self.client.post("/api/flights").status_code, 400)
+        self.assertEqual(self.client.post("/api/flights/ingest").status_code, 400)
 
     def test_mark_read_unknown_alert_returns_404(self):
         self.log_in_with_flights()

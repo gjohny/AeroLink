@@ -69,6 +69,14 @@ def normalize_flight_number(value):
     return cleaned
 
 
+def normalize_status(value):
+    #Live and test data spell some statuses differently ("en-route", "canceled"), so store one spelling
+    status = str(value).strip().lower().replace("-", "_").replace(" ", "_")
+    if status == "canceled":
+        status = "cancelled"
+    return status
+
+
 def _text(record, key):
     #Optional text field: stripped string, or None when missing or blank
     value = record.get(key)
@@ -105,7 +113,7 @@ def ingest_flight(record, cfg = Config):
     if missing:
         raise ValueError(f"Flight record is missing: {', '.join(missing)}")
 
-    new = {"flight_number": normalize_flight_number(record["flight_number"]), "scheduled_departure": parse_time(record["scheduled_departure"]), "estimated_departure": parse_time(record["estimated_departure"]), "status": str(record["status"]).strip().lower()}
+    new = {"flight_number": normalize_flight_number(record["flight_number"]), "scheduled_departure": parse_time(record["scheduled_departure"]), "estimated_departure": parse_time(record["estimated_departure"]), "status": normalize_status(record["status"])}
 
     if record.get("flight_date"):
         new["flight_date"] = parse_date(record["flight_date"])

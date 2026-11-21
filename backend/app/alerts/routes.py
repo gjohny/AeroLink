@@ -4,7 +4,8 @@
 #                               only alerts for flights on trips the user owns or was shared
 #POST /api/alerts/<id>/read     mark one alert as read for this user
 #POST /api/alerts/read-all      mark all of this user's alerts as read
-#POST /api/flights              send in a flight record (this is where Alan's data can land)
+#POST /api/flights/ingest       send in a flight record. Live (AirLabs) and test data both use this same record format
+#                               (GET /api/flights is Alan's flight search, a different route)
 
 from flask import Blueprint, jsonify, request
 
@@ -80,7 +81,7 @@ def mark_all_read():
     return jsonify(updated = updated)
 
 
-@alerts_bp.post("/flights")
+@alerts_bp.post("/flights/ingest")
 def receive_flight():
     record = request.get_json(silent = True)
 

@@ -96,7 +96,7 @@ def _changes(status, alerts):
     if status is None:
         return changes
 
-    threshold = current_app.config.get("DELAY_THRESHOLD_MINUTES", 20)
+    threshold = current_app.config.get("FLIGHT_DELAY_THRESHOLD_MINUTES", 20)
 
     if status.status != "cancelled":
         if _minutes_between(status.scheduled_departure, status.estimated_departure) >= threshold:
