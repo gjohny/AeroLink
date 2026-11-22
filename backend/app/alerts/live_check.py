@@ -1,7 +1,7 @@
 #Live flight check: asks AirLabs about the flights on users' trips and feeds the answers to the alert checker.
 #Nothing runs this automatically, so the AirLabs allowance is only used when someone runs it on purpose.
 
-#Run from the backend folder (venv active, AIRLABS_API_KEY set in backend/.env):
+#Run from the backend folder (venv active, with AIRLABS_API_KEY and LIVE_FLIGHT_DATA=on in backend/.env):
 #    python -m app.alerts.live_check                  check once
 #    python -m app.alerts.live_check --every 10       keep checking every 10 minutes until Ctrl+C
 #    python -m app.alerts.live_check --flight AA100   only check this flight number
@@ -17,15 +17,12 @@ import argparse
 import time
 from datetime import date, datetime, timedelta
 
-import requests
-
 from config import Config
 
 from ..extensions import db
+from ..flights import FlightServiceError, _call_airlabs
 from ..models import TripFlight
 from .checker import ingest_flight
-
-AIRLABS_FLIGHT_URL = "https://airlabs.co/api/v9/flight"
 
 #Never check more often than this, to protect the allowance
 MIN_MINUTES_BETWEEN_CHECKS = 5
@@ -36,7 +33,11 @@ class LiveDataError(Exception):
 
 
 def fetch_airlabs_flight(flight_number, cfg = Config):
-    #One request to AirLabs for one flight number. Returns the raw flight dict, or None if AirLabs has no such flight
+    #One request to AirLabs for one flight number, using Alan's AirLabs code in app/flights.py.
+    #Returns the raw flight dict, or None if AirLabs has no such flight
+    if not getattr(cfg, "LIVE_FLIGHT_DATA", False):
+        raise LiveDataError("Live data is off. Set LIVE_FLIGHT_DATA=on in backend/.env to use AirLabs.")
+
     api_key = (getattr(cfg, "AIRLABS_API_KEY", "") or "").strip()
     if not api_key:
         raise LiveDataError("Add AIRLABS_API_KEY to backend/.env to use live flight data.")
@@ -48,28 +49,11 @@ def fetch_airlabs_flight(flight_number, cfg = Config):
         params = {"flight_iata": flight_number}
 
     try:
-        response = requests.get(AIRLABS_FLIGHT_URL, params = {**params, "api_key": api_key}, timeout = getattr(cfg, "AIRLABS_TIMEOUT", 8))
-        payload = response.json()
-    except requests.RequestException:
-        raise LiveDataError("Couldn't reach AirLabs. Check your internet connection.") from None
-    except ValueError:
-        raise LiveDataError("AirLabs sent back something that wasn't JSON.") from None
+        found = _call_airlabs("flight", params, api_key, float(getattr(cfg, "AIRLABS_TIMEOUT", 8)))
+    except FlightServiceError as err:
+        raise LiveDataError(str(err)) from None
 
-    error = payload.get("error") if isinstance(payload, dict) else None
-    if error:
-        code = error.get("code") if isinstance(error, dict) else None
-        if code == "not_found":
-            return None
-        if code in ("month_limit_exceeded", "minute_limit_exceeded", "hour_limit_exceeded"):
-            raise LiveDataError("The AirLabs request allowance has been reached. Try again later.")
-        if code in ("unknown_api_key", "expired_api_key"):
-            raise LiveDataError("The AirLabs API key is invalid or expired. Update AIRLABS_API_KEY in backend/.env.")
-        raise LiveDataError(f"AirLabs returned an error ({code or 'unknown'}).")
-
-    data = payload.get("response") if isinstance(payload, dict) else None
-    if isinstance(data, list):
-        data = data[0] if data else None
-    return data or None
+    return found[0] if found else None
 
 
 def _utc(value):

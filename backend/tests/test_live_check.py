@@ -23,6 +23,7 @@ class TestConfig(Config):
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     FLIGHT_DELAY_THRESHOLD_MINUTES = 20
     AIRLABS_API_KEY = "test-key"
+    LIVE_FLIGHT_DATA = True
     AIRLABS_TIMEOUT = 1
 
 
@@ -34,6 +35,8 @@ AIRLABS_FLIGHT = {"flight_iata": "AA100", "flight_icao": "AAL100", "airline_iata
 
 def airlabs_answer(flight = None, error = None):
     response = MagicMock()
+    response.status_code = 200
+    response.ok = True
     if error:
         response.json.return_value = {"error": {"code": error}}
     else:
@@ -68,7 +71,7 @@ class LiveCheckTests(unittest.TestCase):
         db.session.commit()
 
     def run_check(self, *answers):
-        with patch("app.alerts.live_check.requests.get", side_effect = list(answers)) as fake_get:
+        with patch("app.flights.requests.get", side_effect = list(answers)) as fake_get:
             used = live_check.check_once(TestConfig, today = TODAY, say = self.messages.append)
         return used, fake_get
 
@@ -152,6 +155,16 @@ class LiveCheckTests(unittest.TestCase):
         self.add_trip_flight()
         with self.assertRaises(live_check.LiveDataError):
             self.run_check(airlabs_answer(error = "month_limit_exceeded"))
+
+    def test_live_data_off_refuses_to_call_airlabs(self):
+        class Off(TestConfig):
+            LIVE_FLIGHT_DATA = False
+
+        self.add_trip_flight()
+        with patch("app.flights.requests.get") as fake_get:
+            with self.assertRaises(live_check.LiveDataError):
+                live_check.check_once(Off, today = TODAY, say = self.messages.append)
+        fake_get.assert_not_called()
 
     def test_missing_api_key(self):
         class NoKey(TestConfig):

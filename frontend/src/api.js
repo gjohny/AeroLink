@@ -22,3 +22,16 @@ export const deleteTask = (id) => request(`/tasks/${id}`, { method: "DELETE" });
    export const getAlerts = () => request("/alerts");
    export const markAlertRead = (id) => request(`/alerts/${id}/read`, { method: "POST" });
    export const markAllAlertsRead = () => request("/alerts/read-all", { method: "POST" });
+
+// Airport information comes from OurAirports + local SQLite, not AirLabs.
+export const getAirports = (filters = {}) => {
+  const query = new URLSearchParams(Object.entries(filters).filter(([, v]) => v !== "" && v != null));
+  return request(`/airports?${query.toString()}`);
+};
+export const getAirportByCode = (code) => request(`/airports/${encodeURIComponent(code)}`);
+
+// AirLabs is called exclusively by Flask; the API key stays on the server.
+export const getFlights = (filters = {}) => {
+  const query = new URLSearchParams(Object.entries(filters).filter(([, v]) => v !== "" && v != null));
+  return request(`/flights?${query.toString()}`);
+};

@@ -165,6 +165,9 @@ export default function FlightPlan({ tripId, onNavigate }) {
   const [form, setForm] = useState(emptyForm);
   const [formError, setFormError] = useState("");
   const [saving, setSaving] = useState(false);
+  //Look up: { tone: "found" | "missing", text } shown under the form
+  const [lookup, setLookup] = useState(null);
+  const [lookingUp, setLookingUp] = useState(false);
   const [confirming, setConfirming] = useState(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
 
@@ -214,6 +217,34 @@ export default function FlightPlan({ tripId, onNavigate }) {
   function closeForm() {
     setEditing(null);
     setFormError("");
+    setLookup(null);
+  }
+
+  //Fills in the airports for a flight number. Uses AirLabs if live data is on, otherwise the saved test data
+  async function lookUpFlight() {
+    setFormError("");
+    setLookup(null);
+    if (!form.flight_number.trim()) {
+      setFormError("Enter a flight number to look up.");
+      return;
+    }
+    setLookingUp(true);
+    try {
+      const params = new URLSearchParams({ flight_number: form.flight_number });
+      if (form.flight_date) params.set("flight_date", form.flight_date);
+      const result = await api(`/api/flights/lookup?${params.toString()}`);
+      if (result.found) {
+        setForm((current) => ({ ...current, departure_airport: result.departure_airport || current.departure_airport, arrival_airport: result.arrival_airport || current.arrival_airport, flight_date: current.flight_date || result.flight_date }));
+      }
+      const details = [];
+      if (result.found && result.airline) details.push(result.airline);
+      if (result.found && (result.departure_airport || result.arrival_airport)) details.push(`${result.departure_airport || "?"} → ${result.arrival_airport || "?"}`);
+      setLookup({ tone: result.found ? "found" : "missing", text: details.length ? `${result.message} ${details.join(" · ")}` : result.message, source: result.source });
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setLookingUp(false);
+    }
   }
 
   async function saveFlight(event) {
@@ -282,11 +313,17 @@ export default function FlightPlan({ tripId, onNavigate }) {
           <h2>{swapping ? `Swap ${editing.flight_number}` : "Add a Flight"}</h2>
           <p>{swapping ? `Enter the flight that replaces ${editing.flight_number}. Its old updates will be cleared from this trip.` : "Enter the flight number and departure date. Airports are optional and fill in on their own once live data arrives."}</p>
           <div className="trips-form-grid fp-form-grid">
-            <label>Flight number<input required autoFocus placeholder="e.g. AA100" value={form.flight_number} onChange={(e) => setForm({ ...form, flight_number: e.target.value.toUpperCase() })} /></label>
+            <label>Flight number
+              <span className="fp-lookup-row">
+                <input required autoFocus placeholder="e.g. AA100" value={form.flight_number} onChange={(e) => { setForm({ ...form, flight_number: e.target.value.toUpperCase() }); setLookup(null); }} />
+                <button type="button" className="trips-secondary fp-lookup-button" onClick={lookUpFlight} disabled={lookingUp}>{lookingUp ? "Looking..." : "Look up"}</button>
+              </span>
+            </label>
             <label>Departure date<input required type="date" value={form.flight_date} onChange={(e) => setForm({ ...form, flight_date: e.target.value })} /></label>
             <label>From <small>(optional)</small><input maxLength={3} placeholder="e.g. ORD" value={form.departure_airport} onChange={(e) => setForm({ ...form, departure_airport: e.target.value.toUpperCase() })} /></label>
             <label>To <small>(optional)</small><input maxLength={3} placeholder="e.g. FCO" value={form.arrival_airport} onChange={(e) => setForm({ ...form, arrival_airport: e.target.value.toUpperCase() })} /></label>
           </div>
+          {lookup && <p className={`fp-lookup-result fp-lookup-${lookup.tone}`} role="status">{lookup.text}<small>{lookup.source === "live" ? " (live data from AirLabs)" : " (test data, live data is off)"}</small></p>}
           {formError && <p className="fp-form-error" role="alert">{formError}</p>}
           <div className="fp-form-actions">
             <button type="button" className="trips-secondary" onClick={closeForm}>Cancel</button>

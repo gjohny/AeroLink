@@ -28,7 +28,8 @@
 }
 
 /* Add / swap form */
-.fp-form > p {
+/* Only the intro line under the heading (not the Look up or error messages) */
+.fp-form > h2 + p {
   margin: -12px 0 22px;
   color: #60738e;
 }
@@ -40,6 +41,44 @@
 
 .fp-form-grid input {
   text-transform: uppercase;
+}
+
+/* Flight number field with the Look up button beside it */
+.fp-lookup-row {
+  display: flex;
+  gap: 8px;
+}
+
+.fp-lookup-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.fp-page .fp-lookup-button {
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.fp-lookup-result {
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.fp-lookup-result small {
+  font-weight: 500;
+  color: #60738e;
+}
+
+.fp-lookup-found {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.fp-lookup-missing {
+  background: #fff6ed;
+  color: #b54708;
 }
 
 .fp-form-grid input[type="date"] {
@@ -379,6 +418,20 @@
 }
 
 @media (max-width: 650px) {
+  /* Let the form fields shrink to the screen; the date picker is wide by default */
+  .fp-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fp-form-grid label {
+    min-width: 0;
+  }
+
+  .fp-form-grid input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   .fp-card {
     padding: 22px 18px;
   }
