@@ -32,4 +32,6 @@
 .aero-flight-notice { border-radius: 8px; padding: 10px 12px; margin: 0 0 10px; background: #eef3ff; color: #2849a8; font-size: 14px; }
 .aero-airport-card { display: grid; gap: 4px; }
 .aero-airport-card span { font-weight: 600; color: #3658c5; }
+.aero-airport-map { justify-self: start; margin-top: 6px; color: #3658c5; font-weight: 600; font-size: 14px; text-decoration: none; }
+.aero-airport-map:hover { text-decoration: underline; }
 @media(max-width: 600px) { .aero-flight-route { flex-direction: column; gap: 8px; } .aero-flight-arrow { transform: rotate(90deg); } }

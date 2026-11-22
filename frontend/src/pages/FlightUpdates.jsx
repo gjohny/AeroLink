@@ -12,6 +12,13 @@ function AirportLabel({ airport }) {
   return `${airport.name || "Unknown airport"} (${airport.iata_code || airport.icao_code || "?"})${airport.city ? ` · ${airport.city}` : ""}`;
 }
 
+//Google Maps link for an airport. Searching by name and code opens the airport's own listing (address, directions),
+//and falls back to the coordinates if there's no name. No API key or request is needed
+function mapsLink(airport) {
+  const query = airport.name ? `${airport.name} (${airport.iata_code})` : `${airport.latitude},${airport.longitude}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
 function TimeLines({ side }) {
   const late = side.delay_minutes;
   return (
@@ -174,6 +181,7 @@ export default function FlightUpdates({ initialTab = "flights", only = null, onB
               <strong>{airport.name}</strong><span>{airport.iata_code} / {airport.icao_code || "—"}</span>
               <small>{airport.city || "Unknown city"}, {airport.country}</small>
               <small>Coordinates: {airport.latitude}, {airport.longitude}</small>
+              <a className="aero-airport-map" href={mapsLink(airport)} target="_blank" rel="noopener noreferrer">Open in Maps ↗</a>
             </article>)}
           </div>}
         </>
