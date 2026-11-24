@@ -1,0 +1,484 @@
+/* Flight Plan page. Builds on trips.css (page, hero, form, and dialog styles) */
+
+.fp-page {
+  /* Change colors by type, the same families the alert bell uses */
+  --fp-delay: #b54708;
+  --fp-delay-bg: #fff6ed;
+  --fp-gate: #2557d6;
+  --fp-gate-bg: #eef3ff;
+  --fp-cancel: #b42318;
+  --fp-cancel-bg: #fef3f2;
+  --fp-ok: #067647;
+  --fp-ok-bg: #ecfdf3;
+}
+
+.fp-error,
+.fp-form-error {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border: 1px solid #fecdca;
+  border-radius: 12px;
+  background: var(--fp-cancel-bg);
+  color: var(--fp-cancel);
+  font-weight: 600;
+}
+
+.fp-form-error {
+  margin: 18px 0 0;
+}
+
+/* Add / swap form */
+/* Only the intro line under the heading (not the Look up or error messages) */
+.fp-form > h2 + p {
+  margin: -12px 0 22px;
+  color: #60738e;
+}
+
+.fp-form-grid small {
+  color: #8394ad;
+  font-weight: 500;
+}
+
+.fp-form-grid input {
+  text-transform: uppercase;
+}
+
+/* Flight number field with the Look up button beside it */
+.fp-lookup-row {
+  display: flex;
+  gap: 8px;
+}
+
+.fp-lookup-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.fp-page .fp-lookup-button {
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+.fp-lookup-result {
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.fp-lookup-result small {
+  font-weight: 500;
+  color: #60738e;
+}
+
+.fp-lookup-found {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.fp-lookup-missing {
+  background: #fff6ed;
+  color: #b54708;
+}
+
+.fp-form-grid input[type="date"] {
+  text-transform: none;
+}
+
+.fp-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* Empty and loading states */
+.fp-empty {
+  color: #60738e;
+  text-align: center;
+  padding: 40px 0;
+}
+
+.fp-empty-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #eaf1ff;
+  color: #245dea;
+}
+
+.fp-empty-icon svg {
+  width: 30px;
+  height: 30px;
+}
+
+.fp-note {
+  margin: 0 0 14px;
+  color: #60738e;
+  font-size: 14px;
+}
+
+/* Flight cards */
+.fp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fp-card {
+  background: #fff;
+  border: 1px solid #d5e2f8;
+  border-radius: 24px;
+  padding: 26px 30px;
+}
+
+.fp-card-cancelled {
+  border-color: #fda29b;
+  background: linear-gradient(var(--fp-cancel-bg), #fff 140px);
+}
+
+.fp-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.fp-number {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: 0.5px;
+}
+
+.fp-sub {
+  margin: 4px 0 0;
+  color: #60738e;
+  font-size: 14px;
+}
+
+.fp-status {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.fp-status-ontime { background: var(--fp-ok-bg); color: var(--fp-ok); }
+.fp-status-delayed { background: var(--fp-delay-bg); color: var(--fp-delay); }
+.fp-status-cancelled { background: var(--fp-cancel); color: #fff; }
+.fp-status-info { background: var(--fp-gate-bg); color: var(--fp-gate); }
+.fp-status-waiting { background: #f1f4f9; color: #60738e; }
+
+.fp-cancel-banner {
+  margin: 18px 0 0;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--fp-cancel);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* Route: departure → arrival */
+.fp-route {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 20px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.fp-end-arrive {
+  text-align: right;
+}
+
+.fp-code {
+  display: block;
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  color: #192b59;
+}
+
+.fp-card-cancelled .fp-code {
+  color: #8394ad;
+}
+
+.fp-place {
+  display: block;
+  min-height: 1.3em;
+  margin-top: 6px;
+  color: #60738e;
+  font-size: 14px;
+}
+
+.fp-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  color: #2764ee;
+}
+
+.fp-path span {
+  width: 44px;
+  border-top: 2px dashed #b9cdf3;
+}
+
+.fp-details {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 0;
+}
+
+.fp-details div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.fp-end-arrive .fp-details div {
+  justify-content: flex-end;
+}
+
+.fp-details dt {
+  min-width: 68px;
+  color: #8394ad;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.fp-end-arrive .fp-details dt {
+  order: 2;
+  min-width: 0;
+}
+
+.fp-details dd {
+  margin: 0;
+  font-weight: 700;
+  color: #192b59;
+}
+
+/* A changed value: old crossed out, new in the change's color */
+.fp-changed {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.fp-changed s {
+  color: #8394ad;
+  font-weight: 500;
+}
+
+.fp-type-delay,
+.fp-type-arrival_delay {
+  color: var(--fp-delay);
+}
+
+.fp-changed.fp-type-delay,
+.fp-changed.fp-type-arrival_delay {
+  background: var(--fp-delay-bg);
+}
+
+.fp-type-gate_change,
+.fp-type-arrival_gate_change {
+  color: var(--fp-gate);
+}
+
+.fp-changed.fp-type-gate_change,
+.fp-changed.fp-type-arrival_gate_change {
+  background: var(--fp-gate-bg);
+}
+
+.fp-type-cancellation {
+  color: var(--fp-cancel);
+}
+
+.fp-waiting {
+  margin: 20px 0 0;
+  padding: 12px 16px;
+  border: 1px dashed #c9d6ec;
+  border-radius: 12px;
+  color: #60738e;
+  font-size: 14px;
+}
+
+.fp-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #e4ecf8;
+}
+
+.fp-updated {
+  color: #8394ad;
+  font-size: 13px;
+}
+
+.fp-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Swap and Remove: same size, side by side */
+.fp-card-actions button,
+.fp-page .fp-card-actions .fp-remove {
+  position: static;
+  margin: 0;
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Update history */
+.fp-history {
+  margin-top: 14px;
+}
+
+.fp-history summary {
+  cursor: pointer;
+  color: #245dea;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.fp-new-count {
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--fp-cancel-bg);
+  color: var(--fp-cancel);
+  font-size: 12px;
+}
+
+.fp-history ul {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fp-history li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid #e4ecf8;
+  border-radius: 12px;
+}
+
+.fp-history-unread {
+  background: #f8fbff;
+  border-color: #c9d9f7;
+}
+
+.fp-chip {
+  padding: 2px 9px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.fp-history-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.fp-history-text strong {
+  font-size: 14px;
+}
+
+.fp-history-text small {
+  color: #60738e;
+}
+
+.fp-history-time {
+  color: #8394ad;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+  /* Let the form fields shrink to the screen; the date picker is wide by default */
+  .fp-form-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .fp-form-grid label {
+    min-width: 0;
+  }
+
+  .fp-form-grid input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .fp-card {
+    padding: 22px 18px;
+  }
+
+  .fp-route {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .fp-path {
+    display: none;
+  }
+
+  .fp-end-arrive {
+    text-align: left;
+    padding-top: 14px;
+    border-top: 1px dashed #d5e2f8;
+  }
+
+  .fp-end-arrive .fp-details div {
+    justify-content: flex-start;
+  }
+
+  .fp-end-arrive .fp-details dt {
+    order: 0;
+    min-width: 68px;
+  }
+
+  .fp-card-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fp-card-actions button {
+    flex: 1;
+  }
+
+  .fp-history li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .fp-chip {
+    justify-self: start;
+  }
+
+  .fp-form-actions {
+    flex-direction: column-reverse;
+  }
+}

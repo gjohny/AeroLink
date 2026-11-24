@@ -10,6 +10,9 @@ from .extensions import db
 from .models import User, Trip, TravelPreference, SavedPlace, RecommendationFeedback
 from .destination_images import find_destination_photo
 from .rec_ranker import rank_recommendations
+from .trip_sharing import accessible_trip, accessible_trips, remove_sharing, trip_for_user
+from .alerts.flight_plan import remove_trip_flights
+
 
 trips_api = Blueprint("trips_api", __name__, url_prefix="/api/trips")
 
@@ -153,17 +156,15 @@ def list_trips():
             error="Not authenticated."
         ), 401
 
-    trips = db.session.execute(
-        db.select(Trip)
-        .filter_by(user_id=user.id)
-        .order_by(
-            Trip.start_date.desc(),
-            Trip.id.desc(),
-        )
-    ).scalars().all()
+    # Trips the user owns plus trips shared with them
+    trips = accessible_trips(user)
+
+    trip_list = []
+    for trip in trips:
+        trip_list.append(trip_for_user(trip, user))
 
     return jsonify(
-        trips=[trip.to_dict() for trip in trips]
+        trips=trip_list
     )
 
 
@@ -200,7 +201,7 @@ def create_trip():
     db.session.commit()
 
     return jsonify(
-        trip=trip.to_dict()
+        trip=trip_for_user(trip, user)
     ), 201
 
 
@@ -213,12 +214,8 @@ def get_trip(trip_id):
             error="Not authenticated."
         ), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    # Owners and members can both open the trip
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(
@@ -226,7 +223,7 @@ def get_trip(trip_id):
         ), 404
 
     return jsonify(
-        trip=trip.to_dict()
+        trip=trip_for_user(trip, user)
     ), 200
 
 
@@ -239,22 +236,27 @@ def delete_trip(trip_id):
             error="Not authenticated."
         ), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    # Owners and members can both open the trip
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(
             error="Trip not found."
         ), 404
 
+    # Only the owner can delete. Members use "Leave trip" instead.
+    if trip.user_id != user.id:
+        return jsonify(
+            error="Only the trip owner can delete this trip."
+        ), 403
+
+    remove_sharing(trip)
+    remove_trip_flights(trip)
     # Delete saved places before deleting their parent trip.
     db.session.execute(
         db.delete(SavedPlace).where(SavedPlace.trip_id == trip.id)
     )
+    db.session.execute(db.delete(RecommendationFeedback).where(RecommendationFeedback.trip_id == trip.id))
     db.session.delete(trip)
     db.session.commit()
 
@@ -272,12 +274,8 @@ def update_trip_photo(trip_id):
             error="Not authenticated."
         ), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    # Owners and members can both open the trip
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(
@@ -303,7 +301,7 @@ def update_trip_photo(trip_id):
     db.session.commit()
 
     return jsonify(
-        trip=trip.to_dict()
+        trip=trip_for_user(trip, user)
     )
 
 
@@ -313,9 +311,7 @@ def update_trip_preferences(trip_id):
     if not user:
         return jsonify(error='Not authenticated.'), 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(id=trip_id, user_id=user.id)
-    ).scalar_one_or_none()
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return jsonify(error='Trip not found.'), 404
@@ -360,21 +356,16 @@ def update_trip_preferences(trip_id):
     trip.preference_snapshot = updated
     db.session.commit()
 
-    return jsonify(trip=trip.to_dict()), 200
+    return jsonify(trip=trip_for_user(trip, user)), 200
 
 
-def owned_trip(trip_id):
+def recommendation_trip(trip_id):
     user = current_user()
 
     if not user:
         return None, 401
 
-    trip = db.session.execute(
-        db.select(Trip).filter_by(
-            id=trip_id,
-            user_id=user.id,
-        )
-    ).scalar_one_or_none()
+    trip = accessible_trip(user, trip_id)
 
     if not trip:
         return None, 404
@@ -384,7 +375,7 @@ def owned_trip(trip_id):
 
 @trips_api.get("/<int:trip_id>/saved-places")
 def list_saved_places(trip_id):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
 
     if error:
         return jsonify(
@@ -405,7 +396,7 @@ def list_saved_places(trip_id):
 
 @trips_api.post("/<int:trip_id>/saved-places")
 def save_place(trip_id):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
 
     if error:
         return jsonify(
@@ -507,7 +498,7 @@ def save_place(trip_id):
     "/<int:trip_id>/saved-places/<int:place_id>"
 )
 def remove_saved_place(trip_id, place_id):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
 
     if error:
         return jsonify(
@@ -534,7 +525,7 @@ def remove_saved_place(trip_id, place_id):
 @trips_api.route("/<int:trip_id>/recommendations", methods=["GET", "POST"])
 def get_trip_recommendations(trip_id):
     # Verify authentication and trip ownership.
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
 
     if error:
         return jsonify(
@@ -618,7 +609,7 @@ def get_trip_recommendations(trip_id):
 
 @trips_api.get("/<int:trip_id>/feedback")
 def get_recommendation_feedback(trip_id):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
 
     if error:
         return jsonify(
@@ -638,7 +629,7 @@ def get_recommendation_feedback(trip_id):
 
 @trips_api.put("/<int:trip_id>/feedback/<place_key>")
 def update_recommendation_feedback(trip_id, place_key):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
 
     if error:
         return jsonify(
@@ -715,7 +706,7 @@ def update_recommendation_feedback(trip_id, place_key):
 
 @trips_api.get("/<int:trip_id>/itinerary-selections")
 def list_itinerary_selections(trip_id):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
     if error:
         return jsonify(error="Not authenticated." if error == 401 else "Trip not found."), error
     places = db.session.execute(
@@ -728,7 +719,7 @@ def list_itinerary_selections(trip_id):
 @trips_api.patch("/<int:trip_id>/saved-places/itinerary")
 @trips_api.patch("/<int:trip_id>/saved-places/<int:place_id>/itinerary")
 def update_itinerary_selection(trip_id, place_id=None):
-    trip, error = owned_trip(trip_id)
+    trip, error = recommendation_trip(trip_id)
     if error:
         return jsonify(error="Not authenticated." if error == 401 else "Trip not found."), error
     data = request.get_json(silent=True)

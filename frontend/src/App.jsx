@@ -8,8 +8,11 @@ import Preferences from "./pages/Preferences";
 import AccountSettings from "./pages/AccountSettings";
 import MyTrips from "./pages/MyTrips";
 import Recommendations from "./pages/Recommendations";
+import FlightPlan from "./pages/FlightPlan";
+import FlightUpdates from "./pages/FlightUpdates";
 
 import { getCurrentUser, logoutUser } from "./authApi";
+import AlertWidget from "./components/AlertWidget.jsx";
 
 // Temporary page for features that are still being developed.
 function ComingSoon({ title, description }) {
@@ -45,16 +48,12 @@ const upcomingPages = {
     description:
       "Track travel expenses and manage your trip budget in one place.",
   },
-  "/updates": {
-    title: "Travel Updates",
-    description:
-      "Stay informed with flight alerts and weather updates for your trip.",
-  },
 };
 
 const protectedPaths = [
   "/preferences",
   "/account",
+  "/updates",
   ...Object.keys(upcomingPages),
 ];
 
@@ -261,9 +260,13 @@ export default function App() {
     const segments = path.split("/").filter(Boolean);
     const tripId = segments.length >= 2 && /^\d+$/.test(segments[1]) ? segments[1] : null;
     const tool = segments.length === 3 ? segments[2] : null;
-    const toolNames = { recommendations: "Recommendations", itineraries: "Itineraries", budget: "Budget", flights: "Flight Alerts", weather: "Weather", airports: "Airport Data" };
+    const toolNames = { recommendations: "Recommendations", itineraries: "Itineraries", budget: "Budget", "flight-plan": "Flight Plan", weather: "Weather", airports: "Airport Data" };
     page = user ? (tripId && tool === "recommendations" ? (
       <Recommendations tripId={tripId} onNavigate={goTo} />
+    ) : tripId && tool === "flight-plan" ? (
+      <FlightPlan tripId={tripId} onNavigate={goTo} />
+    ) : tripId && tool === "airports" ? (
+      <FlightUpdates key={tool} only="airports" onBack={() => goTo(`/trips/${tripId}`)} />
     ) : tripId && tool && toolNames[tool] ? (
       <section className="aero-coming-soon"><div className="aero-coming-soon-card">
         <h1>{toolNames[tool]}</h1>
@@ -274,6 +277,8 @@ export default function App() {
     ) : <MyTrips onNavigate={goTo} selectedTripId={tripId} />) : (
       <Login onSuccess={handleLoginSuccess} onNavigate={goTo} />
     );
+  } else if (path === "/updates") {
+    page = user ? <FlightUpdates /> : <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />;
   } else if (Object.hasOwn(upcomingPages, path)) {
     page = user ? (
       <ComingSoon {...upcomingPages[path]} />
@@ -300,6 +305,7 @@ export default function App() {
     ...(user && !checkingAuth
       ? [
           ["/trips", "My Trips"],
+          ["/updates", "Flight Updates"],
         ]
       : []),
   ];
@@ -434,6 +440,9 @@ export default function App() {
       <div className="aero-page-content">
         {page}
       </div>
+
+      {/* Flight alerts, shown on every page once logged in */}
+      {user && <AlertWidget />}
     </main>
   );
 }

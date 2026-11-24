@@ -132,3 +132,56 @@
 
 /* Consistent link back to the trip list */
 .trips-back-link{display:block;width:fit-content;padding:0;margin:0 0 16px;border:0;background:transparent;color:#2465ed;font:inherit;font-weight:750;font-size:16px;cursor:pointer}.trips-back-link:hover{text-decoration:underline}.trips-page .trips-hero:has(.trips-back-link){justify-content:flex-start}.trips-page .trips-hero:has(.trips-back-link) h1{margin-top:10px}
+
+
+/* Trip sharing */
+.trips-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.trips-secondary { border: 1px solid #b9cdf3; border-radius: 12px; background: #fff; color: #245dea; font-weight: 750; padding: 15px 22px; cursor: pointer; white-space: nowrap; }
+.trips-secondary:hover { border-color: #377afa; background: #f6f9ff; }
+/* Share and Delete (or Leave) sit together in the card's bottom-right corner, where Delete used to be */
+.trips-page .trips-detail-actions { position: absolute; right: 16px; bottom: 16px; display: flex; gap: 8px; align-items: center; }
+.trips-page .trips-detail-actions .trips-detail-delete { position: static; }
+.trips-share { border: 1px solid #b9cdf3; border-radius: 10px; background: #f3f7ff; color: #245dea; font-weight: 700; padding: 7px 12px; font-size: 12px; cursor: pointer; }
+.trips-share:hover { border-color: #377afa; }
+.trips-shared-note { color: #2865e8 !important; font-size: 14px; font-weight: 600; }
+.trips-share-panel { display: flex; flex-direction: column; gap: 16px; margin-top: 18px; padding: 18px 22px; border: 1px dashed #9dbbf5; border-radius: 16px; background: #f6f9ff; }
+.trips-share-code-row { display: flex; align-items: center; gap: 18px; }
+.trips-share-code-row p { margin: 6px 0 0; color: #60738e; font-size: 14px; }
+.trips-share-code-row > div { flex: 1; }
+.trips-share-code { font-size: 24px; font-weight: 800; letter-spacing: 3px; color: #192b59; background: #fff; border: 1px solid #d5e2f8; border-radius: 10px; padding: 10px 16px; white-space: nowrap; }
+.trips-join p { color: #60738e; margin-top: 0; }
+.trips-join-row { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; }
+.trips-join-row label { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: 9px; font-weight: 700; color: #30445f; }
+.trips-join-row input { padding: 15px; border: 1px solid #cbdcf6; border-radius: 11px; font: inherit; color: #233958; background: #fff; text-transform: uppercase; letter-spacing: 2px; }
+.trips-join-row input:focus { outline: 2px solid #8db3ff; }
+.trips-card .trips-card-body > em.trips-shared-tag { display: inline-block; margin: 0 0 10px; padding: 3px 10px; border-radius: 999px; background: #eaf1ff; color: #245dea; font-size: 12px; font-style: normal; font-weight: 700; }
+@media (max-width: 650px) {
+  .trips-hero-actions { margin-top: 20px; }
+  .trips-hero .trips-hero-actions .trips-primary { margin-top: 0; }
+  .trips-share-code-row { flex-direction: column; align-items: stretch; text-align: center; }
+}
+
+/* Sharing panel: people on the trip and stop sharing */
+.trips-share-code-row + .trips-members { padding-top: 16px; border-top: 1px solid #dbe6f8; }
+.trips-members > strong { display: block; margin-bottom: 10px; }
+.trips-members ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.trips-members li { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #d5e2f8; border-radius: 12px; background: #fff; }
+.trips-member-avatar { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: #e6efff; color: #245dea; font-weight: 800; font-size: 14px; flex-shrink: 0; }
+.trips-member-name { flex: 1; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.trips-member-remove { border: 1px solid #ffb3b3; border-radius: 9px; background: #fff6f6; color: #b42323; font-weight: 700; font-size: 13px; padding: 7px 12px; cursor: pointer; }
+.trips-member-remove:hover { border-color: #e06666; }
+.trips-share-footer { display: flex; justify-content: flex-end; }
+.trips-stop-sharing { border: 0; background: transparent; color: #b42323; font-weight: 700; font-size: 14px; padding: 6px 4px; cursor: pointer; }
+.trips-stop-sharing:hover { text-decoration: underline; }
+
+/* In-app confirmation dialog (reuses the preference editor's overlay and header) */
+.trips-confirm-dialog { width: min(460px, 100%); }
+.trips-confirm-message { margin: 0; padding: 22px 28px 6px; color: #30445f; line-height: 1.55; }
+.trips-confirm-footer { justify-content: flex-end; border-top: 0; padding: 18px 28px 24px; }
+.trips-confirm-footer .trips-secondary { padding: 12px 20px; }
+.trips-danger { border: 0; border-radius: 12px; background: #c62828; color: #fff; font-weight: 750; padding: 12px 20px; cursor: pointer; white-space: nowrap; }
+.trips-danger:hover { background: #a91f1f; }
+.trips-danger:disabled, .trips-confirm-footer .trips-secondary:disabled { opacity: .6; cursor: wait; }
+@media (max-width: 650px) {
+  .trips-confirm-footer { flex-direction: column-reverse; align-items: stretch; }
+}

@@ -752,8 +752,13 @@ def get_places(
         name = props.get("name")
         place_id = props.get("place_id")
 
-        if not name or not place_id:
+        # Geoapify can return numeric names (e.g. a restaurant named 123).
+        # Normalize scalar names before deduplication and downstream ranking.
+        if isinstance(name, (int, float)) and not isinstance(name, bool):
+            name = str(name)
+        if not isinstance(name, str) or not name.strip() or not place_id:
             continue
+        name = name.strip()
 
         hashed_id = hashlib.sha256(
             str(place_id).encode("utf-8")
