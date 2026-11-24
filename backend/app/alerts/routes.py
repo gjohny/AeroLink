@@ -95,5 +95,5 @@ def receive_flight():
     new_alerts = []
     for a in created:
         new_alerts.append(a.to_dict())
-    
+
     return jsonify(new_alerts = new_alerts), 201

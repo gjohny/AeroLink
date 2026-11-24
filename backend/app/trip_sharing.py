@@ -24,19 +24,19 @@ CODE_LENGTH = 8
 
 def is_member(trip, user):
     membership = db.session.execute(db.select(TripMember).filter_by(trip_id = trip.id, user_id = user.id)).scalar_one_or_none()
-    
+
     return membership is not None
 
 
 def accessible_trip(user, trip_id):
     # Return the trip if the user owns it or is a member of it, otherwise None
-    
+
     trip = db.session.get(Trip, trip_id)
     if trip is None:
         return None
     if trip.user_id == user.id or is_member(trip, user):
         return trip
-    
+
     return None
 
 
@@ -45,7 +45,7 @@ def accessible_trips(user):
 
     joined_ids = db.select(TripMember.trip_id).filter_by(user_id = user.id)
     query = (db.select(Trip).where(db.or_(Trip.user_id == user.id, Trip.id.in_(joined_ids))).order_by(Trip.start_date.desc(), Trip.id.desc()))
-    
+
     return db.session.execute(query).scalars().all()
 
 
@@ -89,7 +89,7 @@ def current_user():
     user_id = session.get("user_id")
     if isinstance(user_id, int):
         return db.session.get(User, user_id)
-    
+
     return None
 
 

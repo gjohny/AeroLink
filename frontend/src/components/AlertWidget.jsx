@@ -8,7 +8,7 @@ const TYPE_LABELS = {delay: "Delay", arrival_delay: "Arrival delay", gate_change
 
 function timeAgo(iso) {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
-  if (minutes < 1){ 
+  if (minutes < 1){
     return "Just now";
   }
 

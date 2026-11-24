@@ -45,7 +45,7 @@ def parse_time(value):
         moment = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
     except ValueError:
         raise ValueError(f"'{value}' is not a valid ISO 8601 time") from None
-    
+
     if moment.tzinfo is not None:
         moment = moment.astimezone(timezone.utc).replace(tzinfo = None)
 

@@ -32,7 +32,7 @@ def check_delay(old, new, cfg):
 
     if delay < cfg.FLIGHT_DELAY_THRESHOLD_MINUTES:
         return None
-    
+
     return {"type": "delay", "message": f"Flight {new['flight_number']} is delayed by {delay} minutes", "detail": (f"Scheduled {_fmt(new['scheduled_departure'])}, now expected {_fmt(new['estimated_departure'])}"), "dedupe_key": str(delay), "old_value": _iso(new["scheduled_departure"]), "new_value": _iso(new["estimated_departure"])}
 
 
@@ -54,10 +54,10 @@ def check_arrival_delay(old, new, cfg):
 def check_gate_change(old, new, cfg):
     if old is None or not old.get("gate") or not new.get("gate"):
         return None
-    
+
     if old["gate"] == new["gate"]:
         return None
-    
+
     return {"type": "gate_change", "message": f"Flight {new['flight_number']} moved from gate {old['gate']} to gate {new['gate']}", "detail": f"Previous gate {old['gate']}, new gate {new['gate']}", "dedupe_key": f"{old['gate']}->{new['gate']}", "old_value": old["gate"], "new_value": new["gate"]}
 
 
@@ -74,10 +74,10 @@ def check_arrival_gate_change(old, new, cfg):
 def check_cancellation(old, new, cfg):
     if new["status"] != "cancelled":
         return None
-    
+
     if old is not None and old["status"] == "cancelled":
         return None
-    
+
     return {"type": "cancellation", "message": f"Flight {new['flight_number']} was cancelled", "detail": f"Scheduled departure was {_fmt(new['scheduled_departure'])}", "dedupe_key": "cancelled", "old_value": old["status"] if old else None, "new_value": "cancelled"}
 
 

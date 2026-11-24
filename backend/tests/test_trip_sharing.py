@@ -129,7 +129,7 @@ class TripSharingTests(unittest.TestCase):
         self.assertEqual(self.owner.delete(f"/api/trips/{self.trip_id}").status_code, 200)
 
         self.assertEqual(self.friend.get("/api/trips").get_json()["trips"], [])
-        
+
         # The old code no longer works
         self.assertEqual(self.join(self.stranger, code).status_code, 404)
 

@@ -130,6 +130,10 @@
   font-weight: 700;
 }
 
+/* Consistent link back to the trip list */
+.trips-back-link{display:block;width:fit-content;padding:0;margin:0 0 16px;border:0;background:transparent;color:#2465ed;font:inherit;font-weight:750;font-size:16px;cursor:pointer}.trips-back-link:hover{text-decoration:underline}.trips-page .trips-hero:has(.trips-back-link){justify-content:flex-start}.trips-page .trips-hero:has(.trips-back-link) h1{margin-top:10px}
+
+
 /* Trip sharing */
 .trips-hero-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .trips-secondary { border: 1px solid #b9cdf3; border-radius: 12px; background: #fff; color: #245dea; font-weight: 750; padding: 15px 22px; cursor: pointer; white-space: nowrap; }

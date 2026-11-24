@@ -37,7 +37,7 @@ class AlertTestCase(unittest.TestCase):
         alert_types = []
         for a in Alert.query.order_by(Alert.id):
             alert_types.append(a.alert_type)
-            
+
         return alert_types
 
 
