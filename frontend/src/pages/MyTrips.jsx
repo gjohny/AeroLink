@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import "../trips.css";
-import { PREFERENCE_GROUPS } from "../data/preferenceOptions";
+import TripPreferenceFields from "../components/TripPreferenceFields";
 
-const CATEGORIES = PREFERENCE_GROUPS.map(({ key, label }) => [key, label]);
 const FALLBACK = "/images/aerolink-home-image.jpeg";
 const emptyForm = { destination: "", start_date: "", end_date: "", budget: "", travelers: 1, use_saved_preferences: true };
 const formatDate = (value) => value ? new Date(`${value}T12:00:00`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
@@ -35,11 +34,6 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
   const [form, setForm] = useState(emptyForm);
   const [savedPreferences, setSavedPreferences] = useState({});
   const [customPreferences, setCustomPreferences] = useState({});
-  const [editingCategory, setEditingCategory] = useState(null);
-  const [editorBackup, setEditorBackup] = useState(null);
-  const [preferenceSearch, setPreferenceSearch] = useState("");
-  const [customEntry, setCustomEntry] = useState("");
-  const [editorError, setEditorError] = useState("");
 
   useEffect(() => {
     let mounted = true;
@@ -47,7 +41,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
       .then(([tripData, prefData]) => {
         if (!mounted) return;
         setTrips(tripData.trips || []);
-        const prefs = Object.fromEntries(CATEGORIES.map(([key]) => [key, prefData.preferences?.[key] || []]));
+        const prefs = Object.fromEntries(Object.entries(prefData.preferences || {}).filter(([, value]) => Array.isArray(value)));
         setSavedPreferences(prefs);
         setCustomPreferences(prefs);
       })
@@ -58,57 +52,6 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
 
   const selectedTrip = selectedTripId ? trips.find((trip) => trip.id === Number(selectedTripId)) : null;
   const update = (key, value) => setForm((old) => ({ ...old, [key]: value }));
-
-  function openEditor(key) {
-    setEditorBackup(Object.fromEntries(CATEGORIES.map(([field]) => [field, [...(customPreferences[field] || [])]])));
-    setEditingCategory(key);
-    setPreferenceSearch("");
-    setCustomEntry("");
-    setEditorError("");
-  }
-
-  function closeEditor(save) {
-    if (!save && editorBackup) setCustomPreferences(editorBackup);
-    setEditingCategory(null);
-    setEditorBackup(null);
-    setPreferenceSearch("");
-    setCustomEntry("");
-    setEditorError("");
-  }
-
-  function togglePreference(key, option) {
-    const current = customPreferences[key] || [];
-    if (!current.includes(option) && current.length >= 50) {
-      setEditorError("You can select up to 50 preferences in this category.");
-      return;
-    }
-    setEditorError("");
-    setCustomPreferences((old) => ({
-      ...old,
-      [key]: (old[key] || []).includes(option)
-        ? old[key].filter((value) => value !== option)
-        : [...(old[key] || []), option],
-    }));
-  }
-
-  function addCustomPreference(event) {
-    event.preventDefault();
-    const value = customEntry.trim().replace(/\s+/g, " ");
-    if (!value || !editingCategory) return;
-    if (value.length > 100) {
-      setEditorError("Custom preferences must be 100 characters or fewer.");
-      return;
-    }
-    const group = PREFERENCE_GROUPS.find((item) => item.key === editingCategory);
-    const all = [...group.options, ...(customPreferences[editingCategory] || [])];
-    const existing = all.find((item) => item.toLowerCase() === value.toLowerCase());
-    if (existing) {
-      if (!(customPreferences[editingCategory] || []).includes(existing)) togglePreference(editingCategory, existing);
-    } else {
-      togglePreference(editingCategory, value);
-    }
-    setCustomEntry("");
-  }
 
   async function createTrip(event) {
     event.preventDefault();
@@ -163,46 +106,48 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
 
   return (
     <section className="trips-page">
-      <header className="trips-hero">
-        <div><span className="trips-eyebrow">✈ YOUR TRAVEL PLANS</span><h1>{selectedTrip ? selectedTrip.destination : "My Trips"}</h1><p>{selectedTrip ? `${formatDate(selectedTrip.start_date)} – ${formatDate(selectedTrip.end_date)}` : "Your adventures, all in one place."}</p></div>
-        <button type="button" className="trips-primary" onClick={() => selectedTrip ? onNavigate("/trips") : setCreating((value) => !value)}>{selectedTrip ? "← All Trips" : creating ? "Cancel" : "+ Create New Trip"}</button>
-      </header>
+      
+    <header className="trips-hero">
+      <div>
+        {selectedTrip && (
+          <button
+            type="button"
+            className="trips-back-link"
+            onClick={() => onNavigate("/trips")}
+          >
+            ← All Trips
+          </button>
+        )}
 
-      {editingCategory && (() => {
-        const group = PREFERENCE_GROUPS.find((item) => item.key === editingCategory);
-        const chosen = customPreferences[editingCategory] || [];
-        const allOptions = [...group.options, ...chosen.filter((item) => !group.options.some((option) => option.toLowerCase() === item.toLowerCase()))];
-        const filtered = allOptions.filter((item) => item.toLowerCase().includes(preferenceSearch.trim().toLowerCase()));
-        return <div className="trips-editor-overlay" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEditor(false); }}>
-          <section className="trips-editor-dialog" role="dialog" aria-modal="true" aria-labelledby="trips-editor-title">
-            <div className="trips-editor-header">
-              <div><span className="trips-editor-eyebrow">TRIP PREFERENCES</span><h2 id="trips-editor-title">{group.label}</h2><p>Select from all available options or add your own.</p></div>
-              <button type="button" className="trips-editor-close" onClick={() => closeEditor(false)} aria-label="Cancel and close editor">×</button>
-            </div>
-            <div className="trips-editor-content">
-              <label className="trips-editor-search-label" htmlFor="trips-editor-search">Search preferences</label>
-              <input id="trips-editor-search" className="trips-editor-search" type="search" value={preferenceSearch} onChange={(event) => setPreferenceSearch(event.target.value)} placeholder={`Search ${group.label.toLowerCase()}...`} />
-              <div className="trips-editor-meta">{chosen.length} selected · {group.options.length} predefined options</div>
-              <div className="trips-chips trips-editor-chips">
-                {filtered.length ? filtered.map((option) => <button type="button" key={option} aria-pressed={chosen.includes(option)} className={chosen.includes(option) ? "selected" : ""} onClick={() => togglePreference(editingCategory, option)}>{chosen.includes(option) ? "✓ " : "+ "}{option}</button>) : <p className="trips-editor-empty">No matches. You can add your own preference below.</p>}
-              </div>
-              <div className="trips-editor-custom">
-                <label htmlFor="trips-editor-custom">Add a custom preference</label>
-                <div className="trips-editor-custom-row">
-                  <input id="trips-editor-custom" maxLength={100} value={customEntry} onChange={(event) => setCustomEntry(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addCustomPreference(event); }} placeholder="Something else? Type your own..." />
-                  <button type="button" onClick={addCustomPreference} disabled={!customEntry.trim()}>+ Add</button>
-                </div>
-              </div>
-              {editingCategory === "dietary_restrictions" && <p className="trips-editor-caution">Some dietary needs cannot be verified.</p>}
-              {editorError && <p className="trips-error" role="alert">{editorError}</p>}
-            </div>
-            <div className="trips-editor-footer">
-              <button type="button" className="trips-editor-clear" onClick={() => setCustomPreferences((old) => ({ ...old, [editingCategory]: [] }))}>Clear selection</button>
-              <div><button type="button" className="trips-editor-cancel" onClick={() => closeEditor(false)}>Cancel</button><button type="button" className="trips-primary" onClick={() => closeEditor(true)}>Done ✓</button></div>
-            </div>
-          </section>
-        </div>;
-      })()}
+        <span className="trips-eyebrow">
+          ✈ YOUR TRAVEL PLANS
+        </span>
+
+        <h1>
+          {selectedTrip
+          ? `Plan Your ${selectedTrip.destination.split(",")[0].trim()} Trip`
+          : "My Trips"}
+        </h1>
+
+        <p>
+          {selectedTrip
+            ? "Everything you need to plan your trip, all in one place."
+            : "Your adventures, all in one place."}
+        </p>
+      </div>
+
+      {!selectedTrip && (
+        <button
+          type="button"
+          className="trips-primary"
+          onClick={() => setCreating((value) => !value)}
+        >
+          {creating ? "Cancel" : "+ Create New Trip"}
+        </button>
+      )}
+    </header>
+
+
       {error && <p className="trips-error" role="alert">{error}</p>}
       {loading ? <p className="trips-loading">Loading your trips...</p> : selectedTripId && !selectedTrip ? <div className="trips-empty">Trip not found. <button type="button" onClick={() => onNavigate("/trips")}>Back to My Trips</button></div> : selectedTrip ? (
         <>
@@ -244,24 +189,7 @@ export default function MyTrips({ onNavigate, selectedTripId = null }) {
             </div>
             <fieldset className="trips-preference-choice"><legend>Travel Preferences</legend><label><input type="radio" name="pref-mode" checked={form.use_saved_preferences} onChange={() => update("use_saved_preferences", true)} /> Use my saved preferences</label><label><input type="radio" name="pref-mode" checked={!form.use_saved_preferences} onChange={() => update("use_saved_preferences", false)} /> Customize for this trip</label></fieldset>
             {!form.use_saved_preferences && (
-              <div className="trips-preference-summary">
-                <div className="trips-preference-summary-title">
-                  <div><h3>Customize for This Trip</h3><p>Start with your saved preferences. Edit any category without changing My Preferences.</p></div>
-                  <span className="trips-only-tag">Trip only</span>
-                </div>
-                {PREFERENCE_GROUPS.map((group) => {
-                  const chosen = customPreferences[group.key] || [];
-                  return <div className="trips-preference-row" key={group.key}>
-                    <span className="trips-preference-icon" aria-hidden="true">{group.icon}</span>
-                    <div className="trips-preference-row-text">
-                      <strong>{group.label}</strong>
-                      <span>{chosen.length ? `${chosen.slice(0, 3).join(", ")}${chosen.length > 3 ? ` +${chosen.length - 3} more` : ""}` : "None selected"}</span>
-                    </div>
-                    <button type="button" className="trips-edit-preference" onClick={() => openEditor(group.key)} aria-label={`Edit ${group.label}`}>Edit</button>
-                  </div>;
-                })}
-                <p className="trips-preference-note">Your selections will be saved with this trip only.</p>
-              </div>
+              <TripPreferenceFields preferences={customPreferences} onChange={setCustomPreferences} />
             )}
             <button className="trips-primary" type="submit" disabled={saving}>{saving ? "Creating..." : "Create Trip →"}</button>
           </form>}

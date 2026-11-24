@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Preferences from "./pages/Preferences";
 import AccountSettings from "./pages/AccountSettings";
 import MyTrips from "./pages/MyTrips";
+import Recommendations from "./pages/Recommendations";
 
 import { getCurrentUser, logoutUser } from "./authApi";
 
@@ -33,7 +34,6 @@ function ComingSoon({ title, description }) {
   );
 }
 
-// Pages that will be connected to teammates' features later.
 const upcomingPages = {
   "/recommendations": {
     title: "Personalized Recommendations",
@@ -89,7 +89,6 @@ export default function App() {
     };
   }, [profileOpen]);
 
-  // Keep navigation synchronized with browser back/forward.
   useEffect(() => {
     function handlePopState() {
       setPath(window.location.pathname);
@@ -102,7 +101,6 @@ export default function App() {
     };
   }, []);
 
-  // Restore the logged-in user when the application loads.
   useEffect(() => {
     getCurrentUser()
       .then((data) => {
@@ -116,7 +114,6 @@ export default function App() {
       });
   }, []);
 
-  // Navigate without refreshing the entire application.
   function goTo(destination) {
     setProfileOpen(false);
     if (destination === window.location.pathname) return;
@@ -136,6 +133,11 @@ export default function App() {
   function handleAuthSuccess(authenticatedUser) {
     setUser(authenticatedUser);
     goTo("/preferences");
+  }
+
+  function handleLoginSuccess(authenticatedUser) {
+    setUser(authenticatedUser);
+    goTo("/trips");
   }
 
   // Log out and return to the homepage.
@@ -236,16 +238,16 @@ export default function App() {
       renderAlreadyLoggedIn()
     ) : (
       <Login
-        onSuccess={handleAuthSuccess}
-        onNavigate={goTo}
-      />
+      onSuccess={handleLoginSuccess}
+      onNavigate={goTo}
+    />
     );
   } else if (path === "/preferences") {
     page = user ? (
       <Preferences user={user} />
     ) : (
       <Login
-        onSuccess={handleAuthSuccess}
+        onSuccess={handleLoginSuccess}
         onNavigate={goTo}
       />
     );
@@ -253,14 +255,16 @@ export default function App() {
     page = user ? (
       <AccountSettings user={user} onAccountDeleted={() => { setUser(null); goTo("/"); }} />
     ) : (
-      <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />
+      <Login onSuccess={handleLoginSuccess} onNavigate={goTo} />
     );
   } else if (path === "/trips" || path.startsWith("/trips/")) {
     const segments = path.split("/").filter(Boolean);
     const tripId = segments.length >= 2 && /^\d+$/.test(segments[1]) ? segments[1] : null;
     const tool = segments.length === 3 ? segments[2] : null;
     const toolNames = { recommendations: "Recommendations", itineraries: "Itineraries", budget: "Budget", flights: "Flight Alerts", weather: "Weather", airports: "Airport Data" };
-    page = user ? (tripId && tool && toolNames[tool] ? (
+    page = user ? (tripId && tool === "recommendations" ? (
+      <Recommendations tripId={tripId} onNavigate={goTo} />
+    ) : tripId && tool && toolNames[tool] ? (
       <section className="aero-coming-soon"><div className="aero-coming-soon-card">
         <h1>{toolNames[tool]}</h1>
         <button type="button" onClick={() => goTo(`/trips/${tripId}`)}>← Back to Trip</button>
@@ -268,14 +272,14 @@ export default function App() {
     ) : segments.length > 2 || (segments.length === 2 && !tripId) ? (
       <div style={{ padding: 40 }}>Trip page not found.</div>
     ) : <MyTrips onNavigate={goTo} selectedTripId={tripId} />) : (
-      <Login onSuccess={handleAuthSuccess} onNavigate={goTo} />
+      <Login onSuccess={handleLoginSuccess} onNavigate={goTo} />
     );
   } else if (Object.hasOwn(upcomingPages, path)) {
     page = user ? (
       <ComingSoon {...upcomingPages[path]} />
     ) : (
       <Login
-        onSuccess={handleAuthSuccess}
+        onSuccess={handleLoginSuccess}
         onNavigate={goTo}
       />
     );

@@ -30,5 +30,13 @@ def create_app(config_class=Config):
         from . import models  # noqa: F401  (registers models)
 
         db.create_all()  # creates tables on first run
+        # Add missing columns to existing local SQLite databases.
+        if db.engine.dialect.name == "sqlite":
+            with db.engine.begin() as conn:
+                columns = {row[1] for row in conn.exec_driver_sql("PRAGMA table_info(saved_places)")}
+                if "place_metadata" not in columns:
+                    conn.exec_driver_sql("ALTER TABLE saved_places ADD COLUMN place_metadata JSON")
+                if "added_to_itinerary" not in columns:
+                    conn.exec_driver_sql("ALTER TABLE saved_places ADD COLUMN added_to_itinerary BOOLEAN NOT NULL DEFAULT 0")
 
     return app
